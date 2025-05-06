@@ -1,0 +1,20 @@
+services:
+  dbms_mysql:
+    image: mysql:lts
+    restart: always
+    ports:
+      - "3306:3306"  # port forwarding
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - dbms_mysql:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf # load the config file
+      - ./db:/docker-entrypoint-initdb.d  # use file in ./db as init files
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  dbms_mysql:
+
