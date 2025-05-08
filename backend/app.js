@@ -27,8 +27,14 @@ app.use(bodyParser.json());
 /* for example */
 app.get("/", (_, res) => res.send("<h1>GET!</h1>"));
 app.post("/", (_, res) => res.send("<h1>POST!</h1>"));
-app.use("/user", userRouter);
+
+app.get('/test', (_, res) => {
+  console.log('🧪 收到 /test 請求');
+  res.send('test ok');
+});
 
 app.get("/ping", pong);
 app.use("/api/v1", v1);
-app.listen(3000);
+app.listen(3000, () => {
+  console.log("✅ 伺服器正在 http://localhost:3000 上運行");
+});
