@@ -812,7 +812,7 @@ function ProductsTable({ products, offset, totalProducts }) {
                                 fileName: "[project]/app/(dashboard)/products-table.tsx",
                                 lineNumber: 82,
                                 columnNumber: 13
-                            }, this)
+                            }, this) //防止網頁直接炸掉
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/products-table.tsx",
                             lineNumber: 76,

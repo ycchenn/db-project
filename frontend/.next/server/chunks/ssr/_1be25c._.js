@@ -123,7 +123,7 @@ async function getProducts(search, offset) {
         throw new Error('Failed to fetch products');
     }
     const data = await response.json();
-    console.log('🔥 後端回傳資料：', data); // ← 看這裡的結構
+    console.log('🔥 後端回傳資料：', data); // ← 留著debug
     return {
         products: data,
         newOffset: offset + productsPerPage,
