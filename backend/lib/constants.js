@@ -12,16 +12,5 @@ export class JWT {
   static SECRET = new TextEncoder().encode("secret");
 }
 
-export class MySQL {
-  static get USER() {   
-    return process.env.MYSQL_USER;
-  }
 
-  static get PASSWORD() {
-    return process.env.MYSQL_PASSWORD;
-  }
 
-  static get DATABASE() {
-    return process.env.MYSQL_DATABASE;
-  }
-}

@@ -74,9 +74,13 @@ export function ProductsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.map((product) => (
+            {Array.isArray(products) ? (
+            products.map((product) => (
               <Product key={product.id} product={product} />
-            ))}
+            ))
+          ) : (
+            <p className="text-red-500">❌ 無法載入產品資料</p>//防止網頁直接炸掉
+          )}
           </TableBody>
         </Table>
       </CardContent>
@@ -85,10 +89,14 @@ export function ProductsTable({
           <div className="text-xs text-muted-foreground">
             Showing{' '}
             <strong>
-              {Math.max(
-                0,
-                Math.min(offset - productsPerPage, totalProducts) + 1
-              )}-{Math.min(offset, totalProducts)}
+            {Number.isFinite(offset) && Number.isFinite(totalProducts) ? (
+              <>
+                {Math.max(0, Math.min(offset - productsPerPage, totalProducts) + 1)}–
+                {Math.min(offset, totalProducts)}
+              </>
+            ) : (
+              <>0–0</>
+            )}
             </strong>{' '}
             of <strong>{totalProducts}</strong> products
           </div>
