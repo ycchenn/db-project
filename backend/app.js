@@ -8,7 +8,7 @@ import cors from "./lib/cors.js";
 import userRouter from "./routes/v1/user.js";
 
 
-console.log(process.env.MYSQL_USER);  // 打印特定環境變數
+console.log(process.env.DB_USER);  // 打印特定環境變數
 
 
 /**

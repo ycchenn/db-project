@@ -31,6 +31,7 @@ import { VercelLogo } from '@/components/icons';
 import Providers from './providers';
 import { NavItem } from './nav-item';
 import { SearchInput } from './search';
+import { GroupBuyIcon } from '@/components/icons';
 
 export default function DashboardLayout({
   children
@@ -88,6 +89,10 @@ function DesktopNav() {
 
         <NavItem href="#" label="Analytics">
           <LineChart className="h-5 w-5" />
+        </NavItem>
+
+        <NavItem href="/groupbuy" label="GroupBuy Manager">
+          <GroupBuyIcon className="h-5 w-5" />
         </NavItem>
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
@@ -160,6 +165,11 @@ function MobileNav() {
           >
             <LineChart className="h-5 w-5" />
             Settings
+          </Link>
+          <Link 
+          href="groupbuy" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+          <GroupBuyIcon className="h-5 w-5" />
+            GroupBuy Manager
           </Link>
         </nav>
       </SheetContent>

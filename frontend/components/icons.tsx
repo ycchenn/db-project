@@ -124,3 +124,20 @@ export function VercelLogo(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function GroupBuyIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <path d="M3 6h18M3 6l1.5 14h15L21 6M8 6v-2a2 2 0 012-2h4a2 2 0 012 2v2" />
+      <circle cx="9" cy="10" r="1" />
+      <circle cx="15" cy="10" r="1" />
+    </svg>
+  );
+}
