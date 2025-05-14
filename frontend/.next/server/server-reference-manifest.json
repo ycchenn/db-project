@@ -1,0 +1,38 @@
+{
+  "node": {
+    "0063e3e1bec20618b37154a151abea622ac17b4663": {
+      "workers": {
+        "app/(dashboard)/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/(dashboard)/user.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(dashboard)/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        },
+        "app/(dashboard)/groupbuy/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/groupbuy/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/(dashboard)/user.tsx [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        },
+        "app/(dashboard)/groupbuy/create/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/groupbuy/create/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/(dashboard)/user.tsx [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(dashboard)/page": "rsc",
+        "app/(dashboard)/groupbuy/page": "rsc",
+        "app/(dashboard)/groupbuy/create/page": "rsc"
+      }
+    },
+    "4008ceb7d03278be3aa105a0693bd55aa523656734": {
+      "workers": {
+        "app/(dashboard)/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/(dashboard)/user.tsx [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/app/(dashboard)/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(dashboard)/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "+i4VE195ndExeVja29q7izbwuuwu8m4rvx+pZenpByI="
+}
