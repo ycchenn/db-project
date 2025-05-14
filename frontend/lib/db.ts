@@ -29,10 +29,11 @@ export async function getProducts(search: string, offset: number) {
   }
 
   const data = await response.json();
+  console.log('🔥 後端回傳資料：', data); // ← 留著debug
   return {
-    products: data.products,
-    newOffset: data.newOffset,
-    totalProducts: data.totalProducts,
+    products: data,
+    newOffset: offset + productsPerPage,
+    totalProducts: data.length
   };
 }
 
