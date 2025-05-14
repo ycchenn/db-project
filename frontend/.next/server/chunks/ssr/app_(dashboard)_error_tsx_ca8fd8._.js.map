@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file://C%3A/Users/User/OneDrive/%E6%A1%8C%E9%9D%A2/combined-project/frontend/app/%28dashboard%29/error.tsx"],"sourcesContent":["// frontend/app/dashboard/error.tsx\r\n'use client';\r\n\r\nimport { useEffect } from 'react';\r\n\r\nexport default function Error({\r\n  error,\r\n  reset,\r\n}: {\r\n  error: Error & { digest?: string };\r\n  reset: () => void;\r\n}) {\r\n  useEffect(() => {\r\n    console.error(error);\r\n  }, [error]);\r\n\r\n  return (\r\n    <main className=\"p-4 md:p-6\">\r\n      <div className=\"mb-8 space-y-4\">\r\n        <h1 className=\"font-semibold text-lg md:text-2xl\">Something went wrong</h1>\r\n        <p>An error occurred while loading the page. Please try again.</p>\r\n        <button\r\n          onClick={reset}\r\n          className=\"bg-blue-500 text-white px-4 py-2 rounded\"\r\n        >\r\n          Try Again\r\n        </button>\r\n      </div>\r\n    </main>\r\n  );\r\n}"],"names":[],"mappings":"AAAA,mCAAmC;;;;;AAGnC;AAFA;;;AAIe,SAAS,MAAM,EAC5B,KAAK,EACL,KAAK,EAIN;IACC,CAAA,GAAA,oUAAA,CAAA,YAAS,AAAD,EAAE;QACR,QAAQ,KAAK,CAAC;IAChB,GAAG;QAAC;KAAM;IAEV,qBACE,6WAAC;QAAK,WAAU;kBACd,cAAA,6WAAC;YAAI,WAAU;;8BACb,6WAAC;oBAAG,WAAU;8BAAoC;;;;;;8BAClD,6WAAC;8BAAE;;;;;;8BACH,6WAAC;oBACC,SAAS;oBACT,WAAU;8BACX;;;;;;;;;;;;;;;;;AAMT"}},
+    {"offset": {"line": 63, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}
