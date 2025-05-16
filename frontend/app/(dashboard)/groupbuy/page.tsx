@@ -1,46 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 type GroupBuy = {
   id: number;
   title: string;
+  description: string;
+  price: number;
   status: '進行中' | '已成團' | '未成團' | '已關閉';
-  currentCount: number;
-  maxCount: number;
+  current_count: number;
+  max_count: number;
   deadline: string;
 };
 
-const mockData: GroupBuy[] = [
-  {
-    id: 1,
-    title: '韓國保溫杯團購',
-    status: '進行中',
-    currentCount: 18,
-    maxCount: 30,
-    deadline: '2025-06-01',
-  },
-  {
-    id: 2,
-    title: '日本文具開團',
-    status: '已成團',
-    currentCount: 50,
-    maxCount: 50,
-    deadline: '2025-05-10',
-  },
-  {
-    id: 3,
-    title: '兒童玩具優惠組',
-    status: '未成團',
-    currentCount: 2,
-    maxCount: 20,
-    deadline: '2025-05-30',
-  },
-];
-
 export default function GroupBuyPage() {
-  const [data, setData] = useState<GroupBuy[]>(mockData);
+  const [data, setData] = useState<GroupBuy[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:3000/api/organizer_groupbuys')
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`API 錯誤 (${res.status})`);
+      }
+      return res.json();
+    })
+      .then((json) => {
+        setData(json);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('無法載入資料:', err);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="p-6">
@@ -57,7 +51,9 @@ export default function GroupBuyPage() {
       <table className="w-full table-auto border text-sm bg-white">
         <thead className="bg-gray-100">
           <tr>
-            <th className="px-4 py-2 text-left">團購名稱</th>
+            <th className="px-4 py-2 text-left">商品名稱</th>
+            <th className="px-4 py-2 text-left">商品描述</th>
+            <th className="px-4 py-2 text-left">價錢</th>
             <th className="px-4 py-2 text-left">狀態</th>
             <th className="px-4 py-2 text-left">目前人數</th>
             <th className="px-4 py-2 text-left">截止日</th>
@@ -68,20 +64,29 @@ export default function GroupBuyPage() {
           {data.map((item) => (
             <tr key={item.id} className="border-b hover:bg-gray-50">
               <td className="px-4 py-2">{item.title}</td>
+              <td className="px-4 py-2">{item.description}</td>
+              <td className="px-4 py-2">{item.price}</td>
               <td className="px-4 py-2">{item.status}</td>
               <td className="px-4 py-2">
-                {item.currentCount} / {item.maxCount}
+                {item.current_count} / {item.max_count}
               </td>
-              <td className="px-4 py-2">{item.deadline}</td>
+              <td className="px-4 py-2">
+                {new Date(item.deadline).toISOString().split('T')[0]}
+              </td>
               <td className="px-4 py-2">
                 <Link
                   href={`/groupbuy/${item.id}`}
                   className="text-blue-600 hover:underline mr-2"
                 >
-                  查看
+                
                 </Link>
-                <button className="text-green-600 hover:underline mr-2">編輯</button>
-                <button className="text-red-600 hover:underline">關閉</button>
+                <Link
+                  href={`/groupbuy/${item.id}/edit`}
+                  className="text-green-600 hover:underline"
+                >
+                  編輯
+                </Link>
+                
               </td>
             </tr>
           ))}

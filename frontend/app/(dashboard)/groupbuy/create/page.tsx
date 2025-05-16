@@ -19,13 +19,36 @@ export default function CreateGroupBuyPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('🛒 提交團購資料:', form);
-    // ✅ 未來這裡可以加 API POST 請求
-    alert('新增成功！');
-    router.push('/groupbuy'); // 回列表頁
+    
+    try {
+      const res = await fetch('http://localhost:3000/api/organizer_groupbuys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: form.title,
+          description: form.description,
+          status: '進行中',
+          current_count: 0,
+          max_count: parseInt(form.maxCount),
+          deadline: new Date(form.deadline), 
+          created_at: new Date(), 
+        }),
+      });
+  
+      if (!res.ok) throw new Error('新增失敗');
+  
+      alert('團購新增成功！');
+      router.push('/groupbuy');
+    } catch (err) {
+      console.error('❌ 發生錯誤:', err);
+      alert('❌ 發生錯誤，請稍後再試');
+    }
   };
+  
 
   return (
     <div className="max-w-xl mx-auto p-6">
@@ -64,17 +87,7 @@ export default function CreateGroupBuyPage() {
               className="w-full border px-3 py-2 rounded"
             />
           </div>
-          <div className="flex-1">
-            <label className="block font-medium">原價</label>
-            <input
-              type="number"
-              name="originalPrice"
-              value={form.originalPrice}
-              onChange={handleChange}
-              required
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div>
+          
         </div>
         <div>
           <label className="block font-medium">人數上限</label>

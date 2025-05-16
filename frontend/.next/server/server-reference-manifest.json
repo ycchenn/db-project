@@ -10,6 +10,10 @@
           "moduleId": "[project]/.next-internal/server/app/(dashboard)/groupbuy/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/(dashboard)/user.tsx [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
           "async": false
         },
+        "app/(dashboard)/groupbuy/[id]/edit/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/groupbuy/[id]/edit/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/(dashboard)/user.tsx [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        },
         "app/(dashboard)/groupbuy/create/page": {
           "moduleId": "[project]/.next-internal/server/app/(dashboard)/groupbuy/create/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/(dashboard)/user.tsx [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
           "async": false
@@ -18,6 +22,7 @@
       "layer": {
         "app/(dashboard)/page": "rsc",
         "app/(dashboard)/groupbuy/page": "rsc",
+        "app/(dashboard)/groupbuy/[id]/edit/page": "rsc",
         "app/(dashboard)/groupbuy/create/page": "rsc"
       }
     },
