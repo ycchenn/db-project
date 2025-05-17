@@ -66,8 +66,8 @@ export function ProductsTable({
               <TableHead>Name</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="hidden md:table-cell">Price</TableHead>
-              <TableHead className="hidden md:table-cell">Stock</TableHead>
-              <TableHead className="hidden md:table-cell">Created at</TableHead>
+              <TableHead className="hidden md:table-cell">Quantity</TableHead>
+              <TableHead className="hidden md:table-cell">Deadline</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -75,12 +75,12 @@ export function ProductsTable({
           </TableHeader>
           <TableBody>
             {Array.isArray(products) ? (
-            products.map((product) => (
-              <Product key={product.id} product={product} />
-            ))
-          ) : (
-            <p className="text-red-500">❌ 無法載入產品資料</p>//防止網頁直接炸掉
-          )}
+              products.map((product) => (
+                <Product key={product.id} product={product} />
+              ))
+            ) : (
+              <p className="text-red-500">❌ 無法載入產品資料</p>
+            )}
           </TableBody>
         </Table>
       </CardContent>
@@ -89,14 +89,14 @@ export function ProductsTable({
           <div className="text-xs text-muted-foreground">
             Showing{' '}
             <strong>
-            {Number.isFinite(offset) && Number.isFinite(totalProducts) ? (
-              <>
-                {Math.max(0, Math.min(offset - productsPerPage, totalProducts) + 1)}–
-                {Math.min(offset, totalProducts)}
-              </>
-            ) : (
-              <>0–0</>
-            )}
+              {Number.isFinite(offset) && Number.isFinite(totalProducts) ? (
+                <>
+                  {Math.max(0, Math.min(offset - productsPerPage, totalProducts) + 1)}–
+                  {Math.min(offset, totalProducts)}
+                </>
+              ) : (
+                <>0–0</>
+              )}
             </strong>{' '}
             of <strong>{totalProducts}</strong> products
           </div>
