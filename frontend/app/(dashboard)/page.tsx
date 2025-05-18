@@ -1,48 +1,66 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { File, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProductsTable } from './products-table';
-import { getProducts } from '@/lib/db';
+import { getGroupbuys, Groupbuy } from '@/lib/db';
+import { useSearchParams, useRouter } from 'next/navigation';
 
-export default async function ProductsPage(
-  props: {
-    searchParams: Promise<{ q: string; offset: string }>;
-  }
-) {
-  const searchParams = await props.searchParams;
-  const search = searchParams.q ?? '';
-  const offset = searchParams.offset ?? 0;
-  const { products, newOffset, totalProducts } = await getProducts(
-    search,
-    Number(offset)
-  );
+export default function GroupbuysPage() {
+  const [groupbuys, setGroupbuys] = useState<Groupbuy[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const searchParams = useSearchParams();
+  const offset = Number(searchParams.get('offset')) || 0;
+  const groupbuysPerPage = 5;
+
+  useEffect(() => {
+    getGroupbuys()
+      .then((data) => {
+        setGroupbuys(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('❌ fetch groupbuys error:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  const paginated = groupbuys.slice(offset, offset + groupbuysPerPage);
 
   return (
     <Tabs defaultValue="all">
-      <div className="flex items-center">
+      <div className="flex items-center mb-4">
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="draft">Draft</TabsTrigger>
-          <TabsTrigger value="archived" className="hidden sm:flex">
-            Archived
+          <TabsTrigger value="all">全部</TabsTrigger>
+          <TabsTrigger value="進行中">進行中</TabsTrigger>
+          <TabsTrigger value="已成團">已成團</TabsTrigger>
+          <TabsTrigger value="已關閉" className="hidden sm:flex">
+            已關閉
           </TabsTrigger>
         </TabsList>
         <div className="ml-auto flex items-center gap-2">
           <Button size="sm" className="h-8 gap-1">
             <ShoppingCart className="h-3.5 w-3.5" />
             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Shopping Cart
+              購物車
             </span>
           </Button>
         </div>
       </div>
+
       <TabsContent value="all">
-        <ProductsTable
-          products={products}
-          offset={newOffset ?? 0}
-          totalProducts={totalProducts}
-        />
+        {loading ? (
+          <p className="text-muted-foreground">載入中...</p>
+        ) : (
+          <ProductsTable
+            products={paginated}
+            offset={offset}
+            totalProducts={groupbuys.length}
+          />
+        )}
       </TabsContent>
     </Tabs>
   );

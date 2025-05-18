@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function CreateGroupBuyPage() {
@@ -10,7 +10,7 @@ export default function CreateGroupBuyPage() {
     title: '',
     description: '',
     price: '',
-    originalPrice: '',
+    image_url: '',
     maxCount: '',
     deadline: '',
   });
@@ -21,25 +21,26 @@ export default function CreateGroupBuyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+  
     try {
-      const res = await fetch('http://localhost:3000/api/organizer_groupbuys', {
+      const res = await fetch('http://localhost:3000/api/groupbuys', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          user_id: 1, // ✅ 預設填入
           title: form.title,
           description: form.description,
-          status: '進行中',
-          current_count: 0,
+          price: parseFloat(form.price),
+          image_url: '', // ✅ 如果還沒上傳功能，可放預設圖片
           max_count: parseInt(form.maxCount),
-          deadline: new Date(form.deadline), 
-          created_at: new Date(), 
+          deadline: form.deadline,
         }),
       });
   
       if (!res.ok) throw new Error('新增失敗');
+      const errorText = await res.text();
   
       alert('團購新增成功！');
       router.push('/groupbuy');
@@ -55,7 +56,7 @@ export default function CreateGroupBuyPage() {
       <h1 className="text-2xl font-bold mb-4">新增團購</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block font-medium">團購名稱</label>
+          <label className="block font-medium">商品名稱 / 團購標題</label>
           <input
             type="text"
             name="title"
@@ -66,7 +67,7 @@ export default function CreateGroupBuyPage() {
           />
         </div>
         <div>
-          <label className="block font-medium">團購描述</label>
+          <label className="block font-medium">商品描述</label>
           <textarea
             name="description"
             value={form.description}
@@ -75,19 +76,27 @@ export default function CreateGroupBuyPage() {
             rows={3}
           />
         </div>
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="block font-medium">團購價格</label>
-            <input
-              type="number"
-              name="price"
-              value={form.price}
-              onChange={handleChange}
-              required
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div>
-          
+        <div>
+          <label className="block font-medium">商品圖片網址</label>
+          <input
+            type="text"
+            name="image_url"
+            value={form.image_url}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="https://..."
+          />
+        </div>
+        <div>
+          <label className="block font-medium">價格</label>
+          <input
+            type="number"
+            name="price"
+            value={form.price}
+            onChange={handleChange}
+            required
+            className="w-full border px-3 py-2 rounded"
+          />
         </div>
         <div>
           <label className="block font-medium">人數上限</label>

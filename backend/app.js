@@ -6,8 +6,7 @@ import v1 from "./routes/v1/api.js";
 import bodyParser from "body-parser";
 import cors from "./lib/cors.js";
 import userRouter from "./routes/v1/user.js";
-import groupbuyRouter from './routes/v1/organizer_groupbuys.js';
-import productsRouter from './routes/v1/products.js';
+import groupbuyRouter from './routes/v1/groupbuys.js';
 
 console.log(process.env.DB_USER);  // 打印特定環境變數
 
@@ -36,8 +35,7 @@ app.get('/test', (_, res) => {
 
 app.get("/ping", pong);
 app.use("/api/v1", v1);
-app.use('/api/organizer_groupbuys', groupbuyRouter);
-app.use('/api/products', productsRouter);
+app.use('/api/groupbuys', groupbuyRouter);
 app.listen(3000, () => {
   console.log("✅ 伺服器正在 http://localhost:3000 上運行");
 });

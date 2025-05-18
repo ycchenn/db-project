@@ -1,4 +1,3 @@
-// frontend/app/dashboard/products/products-table.tsx
 'use client';
 
 import {
@@ -16,8 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Product } from './product';
-import { SelectProduct } from '@/lib/db';
+import { Product, Groupbuy } from './product';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,7 +25,7 @@ export function ProductsTable({
   offset,
   totalProducts,
 }: {
-  products: SelectProduct[];
+  products: Groupbuy[];
   offset: number;
   totalProducts: number;
 }) {
@@ -51,10 +49,7 @@ export function ProductsTable({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Products</CardTitle>
-        <CardDescription>
-          Manage your products and view their sales performance.
-        </CardDescription>
+        <CardTitle>商品瀏覽</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
@@ -63,13 +58,13 @@ export function ProductsTable({
               <TableHead className="hidden w-[100px] sm:table-cell">
                 <span className="sr-only">Image</span>
               </TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="hidden md:table-cell">Price</TableHead>
-              <TableHead className="hidden md:table-cell">Quantity</TableHead>
-              <TableHead className="hidden md:table-cell">Deadline</TableHead>
+              <TableHead>商品名稱</TableHead>
+              <TableHead>狀態</TableHead>
+              <TableHead className="hidden md:table-cell">價格</TableHead>
+              <TableHead className="hidden md:table-cell">人數</TableHead>
+              <TableHead className="hidden md:table-cell">截止日</TableHead>
               <TableHead>
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">操作</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -79,7 +74,7 @@ export function ProductsTable({
                 <Product key={product.id} product={product} />
               ))
             ) : (
-              <p className="text-red-500">❌ 無法載入產品資料</p>
+              <p className="text-red-500">❌ 無法載入團購資料</p>
             )}
           </TableBody>
         </Table>
@@ -87,18 +82,17 @@ export function ProductsTable({
       <CardFooter>
         <div className="flex items-center w-full justify-between">
           <div className="text-xs text-muted-foreground">
-            Showing{' '}
+            顯示{' '}
             <strong>
               {Number.isFinite(offset) && Number.isFinite(totalProducts) ? (
                 <>
-                  {Math.max(0, Math.min(offset - productsPerPage, totalProducts) + 1)}–
-                  {Math.min(offset, totalProducts)}
+                  {Math.max(0, Math.min(offset - productsPerPage, totalProducts) + 1)}–{Math.min(offset, totalProducts)}
                 </>
               ) : (
                 <>0–0</>
               )}
             </strong>{' '}
-            of <strong>{totalProducts}</strong> products
+            共 <strong>{totalProducts}</strong> 筆團購
           </div>
           <div className="flex">
             <Button
@@ -109,7 +103,7 @@ export function ProductsTable({
               disabled={offset === productsPerPage}
             >
               <ChevronLeft className="mr-2 h-4 w-4" />
-              Prev
+              上一頁
             </Button>
             <Button
               onClick={nextPage}
@@ -118,7 +112,7 @@ export function ProductsTable({
               type="button"
               disabled={offset >= totalProducts}
             >
-              Next
+              下一頁
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
