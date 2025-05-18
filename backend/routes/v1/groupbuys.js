@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ 建立新團購（含商品資訊）
+
 router.post('/', async (req, res) => {
   const {
     user_id,
@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ 取得單一團購
+
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -61,7 +61,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ 更新團購資訊
+
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const {
@@ -105,7 +105,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// ✅ 刪除團購
+
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
