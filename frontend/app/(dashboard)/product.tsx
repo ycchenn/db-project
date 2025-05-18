@@ -28,14 +28,12 @@ export function Product({ product }: { product: SelectProduct }) {
       </TableCell>
       <TableCell className="font-medium">{product.name}</TableCell>
       <TableCell>
-        <Badge variant="outline" className="capitalize">
-          {product.status}
-        </Badge>
+        <Badge variant="outline" className="capitalize">{product.status}</Badge>
       </TableCell>
       <TableCell className="hidden md:table-cell">{`$${Number(product.price).toFixed(2)}`}</TableCell>
-      <TableCell className="hidden md:table-cell">{product.stock}</TableCell>
+      <TableCell className="hidden md:table-cell">{product.quantity}</TableCell>
       <TableCell className="hidden md:table-cell">
-        {new Date(product.availableAt).toLocaleDateString('en-US')}
+        {new Date(product.deadline).toLocaleDateString('en-US')}
       </TableCell>
       <TableCell>
         <DropdownMenu>
