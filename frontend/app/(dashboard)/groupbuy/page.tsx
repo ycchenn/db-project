@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import AuthGuard from '@/components/AuthGuard';
 
 type GroupBuy = {
   id: number;
@@ -20,11 +21,11 @@ export default function GroupBuyPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const user_id = localStorage.getItem('userId'); // ✅ 用 localStorage 模擬登入
-    /*if (!user_id) {
+    const user_id = localStorage.getItem('userId');
+    if (!user_id) {
       alert('請先登入');
       return;
-    }*/
+    }
 
     fetch(`http://localhost:3000/api/groupbuys?user_id=${user_id}`)
       .then((res) => {
@@ -42,6 +43,7 @@ export default function GroupBuyPage() {
   }, []);
 
   return (
+    <AuthGuard>
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">我的團購清單</h1>
@@ -105,7 +107,8 @@ export default function GroupBuyPage() {
             ))}
           </tbody>
         </table>
-      )}
-    </div>
+        )}
+      </div>
+    </AuthGuard>
   );
 }

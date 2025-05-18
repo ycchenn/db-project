@@ -7,6 +7,7 @@ import bodyParser from "body-parser";
 import cors from "./lib/cors.js";
 import userRouter from "./routes/v1/user.js";
 import groupbuyRouter from './routes/v1/groupbuys.js';
+import authRoutes from './routes/v1/auth.js';
 
 console.log(process.env.DB_USER);  // 打印特定環境變數
 
@@ -21,10 +22,11 @@ async function pong(_, res) {
 }
 
 const app = express();
+app.use(express.json());
 app.use("/", cors);
 app.use(bodyParser.json());
 
-/* for example */
+
 app.get("/", (_, res) => res.send("<h1>GET!</h1>"));
 app.post("/", (_, res) => res.send("<h1>POST!</h1>"));
 
@@ -34,8 +36,8 @@ app.get('/test', (_, res) => {
 });
 
 app.get("/ping", pong);
-app.use("/api/v1", v1);
 app.use('/api/groupbuys', groupbuyRouter);
+app.use('/api', authRoutes);
 app.listen(3000, () => {
   console.log("✅ 伺服器正在 http://localhost:3000 上運行");
 });

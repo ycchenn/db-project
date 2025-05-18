@@ -1,5 +1,7 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { auth, signOut } from '@/lib/auth';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -11,20 +13,24 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 
-export async function User() {
-  let session = await auth();
-  let user = session?.user;
+export default function User() {
+  const [user, setUser] = useState<{ email: string | null } | null>(null);
+
+  useEffect(() => {
+    // 嘗試從 localStorage 判斷登入狀態
+    const userId = localStorage.getItem('userId');
+    const email = localStorage.getItem('userEmail'); // 可選
+    if (userId) {
+      setUser({ email: email ?? null });
+    }
+  }, []);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="overflow-hidden rounded-full"
-        >
+        <Button variant="outline" size="icon" className="overflow-hidden rounded-full">
           <Image
-            src={user?.image ?? '/placeholder-user.jpg'}
+            src="/placeholder-user.jpg"
             width={36}
             height={36}
             alt="Avatar"
@@ -33,26 +39,36 @@ export async function User() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel>
+          {user?.email ?? 'My Account'}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuItem>Support</DropdownMenuItem>
         <DropdownMenuSeparator />
         {user ? (
-          <DropdownMenuItem>
-            <form
-              action={async () => {
-                'use server';
-                await signOut();
-              }}
-            >
-              <button type="submit">Sign Out</button>
-            </form>
+          <DropdownMenuItem
+            onClick={() => {
+              localStorage.removeItem('userId');
+              localStorage.removeItem('userEmail'); // 如果有存
+              window.location.href = '/login';
+            }}
+          >
+            Sign Out
           </DropdownMenuItem>
         ) : (
-          <DropdownMenuItem>
-            <Link href="/login">Sign In</Link>
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuItem>
+              <Link href="/login" className="w-full">
+                Sign In
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link href="/register" className="w-full">
+                Sign Up
+              </Link>
+            </DropdownMenuItem>
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

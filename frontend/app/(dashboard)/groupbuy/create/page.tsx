@@ -29,11 +29,11 @@ export default function CreateGroupBuyPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: 1, // ✅ 預設填入
+          user_id: localStorage.getItem('userId'),
           title: form.title,
           description: form.description,
           price: parseFloat(form.price),
-          image_url: '', // ✅ 如果還沒上傳功能，可放預設圖片
+          image_url: '', 
           max_count: parseInt(form.maxCount),
           deadline: form.deadline,
         }),
