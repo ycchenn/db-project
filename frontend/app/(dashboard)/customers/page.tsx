@@ -1,4 +1,6 @@
 // frontend/app/dashboard/customers/page.tsx
+"use client";
+
 import {
   Card,
   CardContent,
