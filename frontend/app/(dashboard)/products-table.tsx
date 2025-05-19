@@ -18,36 +18,37 @@ import {
 } from '@/components/ui/card';
 import { Product, Groupbuy } from './product';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'; // Added X here
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+interface ProductsTableProps {
+  products: Groupbuy[];
+  offset: number;
+  totalProducts: number;
+  addToCart: (id: number, title: string, price: number, quantity: number) => void;
+}
 
 export function ProductsTable({
   products,
   offset,
   totalProducts,
   addToCart,
-}: {
-  products: Groupbuy[];
-  offset: number;
-  totalProducts: number;
-  addToCart: (id: number, title: string, price: number, quantity: number) => void;
-}) {
+}: ProductsTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const productsPerPage = 5;
+  const productsPerPage = 5; // 固定每頁 5 個商品
   const [selectedProduct, setSelectedProduct] = useState<Groupbuy | null>(null);
 
   function prevPage() {
     const newOffset = Math.max(0, offset - productsPerPage);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('offset', newOffset.toString());
-    router.push(`/dashboard/products?${params.toString()}`, { scroll: false });
+    console.log(`Navigating to previous page with offset: ${newOffset}`);
+    router.push(`/products?offset=${newOffset}`, { scroll: false });
   }
 
   function nextPage() {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('offset', offset.toString());
-    router.push(`/dashboard/products?${params.toString()}`, { scroll: false });
+    const newOffset = offset + productsPerPage;
+    console.log(`Navigating to next page with offset: ${newOffset}`);
+    router.push(`/products?offset=${newOffset}`, { scroll: false });
   }
 
   const handleCloseModal = (e: React.MouseEvent) => {
@@ -101,7 +102,7 @@ export function ProductsTable({
             <strong>
               {Number.isFinite(offset) && Number.isFinite(totalProducts) ? (
                 <>
-                  {Math.max(0, Math.min(offset - productsPerPage, totalProducts) + 1)}–{Math.min(offset, totalProducts)}
+                  {Math.max(1, offset + 1)}–{Math.min(offset + productsPerPage, totalProducts)}
                 </>
               ) : (
                 <>0–0</>
@@ -115,7 +116,7 @@ export function ProductsTable({
               variant="ghost"
               size="sm"
               type="button"
-              disabled={offset === productsPerPage}
+              disabled={offset <= 0}
             >
               <ChevronLeft className="mr-2 h-4 w-4" />
               上一頁
@@ -125,7 +126,7 @@ export function ProductsTable({
               variant="ghost"
               size="sm"
               type="button"
-              disabled={offset >= totalProducts}
+              disabled={offset + productsPerPage >= totalProducts}
             >
               下一頁
               <ChevronRight className="ml-2 h-4 w-4" />

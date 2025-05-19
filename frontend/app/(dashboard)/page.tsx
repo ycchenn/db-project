@@ -22,6 +22,7 @@ export default function GroupbuysPage() {
   const searchParams = useSearchParams();
   const offset = Number(searchParams.get('offset')) || 0;
   const groupbuysPerPage = 5;
+  const router = useRouter();
 
   useEffect(() => {
     getGroupbuys()
@@ -30,7 +31,12 @@ export default function GroupbuysPage() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error('❌ Failed to fetch groupbuys:', err.message);
+        console.error('❌ Failed to fetch groupbuys:', {
+          message: err.message,
+          stack: err.stack,
+          name: err.name,
+          response: err.response ? err.response.statusText : 'No response',
+        });
         setLoading(false);
       });
   }, []);
@@ -46,7 +52,7 @@ export default function GroupbuysPage() {
     .filter((groupbuy) => groupbuy.status.toLowerCase() === 'closed')
     .slice(offset, offset + groupbuysPerPage);
 
-  const addToCart = (id: number, title: string, price: number, quantity: number) => {
+  const addToCart = (id: number, title: string, price: number, quantity: number): void => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === id);
       if (existingItem) {
@@ -94,6 +100,18 @@ export default function GroupbuysPage() {
                 <DropdownMenuItem>
                   總計: $
                   {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+                </DropdownMenuItem>
+              )}
+              {cart.length > 0 && (
+                <DropdownMenuItem>
+                  <Button
+                    size="sm"
+                    className="h-8 gap-1 w-full"
+                    onClick={() => router.push('/orders')}
+                  >
+                    <ShoppingCart className="h-3.5 w-3.5" />
+                    <span>結帳</span>
+                  </Button>
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

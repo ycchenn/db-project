@@ -14,23 +14,33 @@ export type Groupbuy = {
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export async function getGroupbuys(): Promise<Groupbuy[]> {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  try {
+    const response = await fetch(`${API_URL}/api/groupbuys`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-  const response = await fetch(`${API_URL}/api/groupbuys`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+    if (!response.ok) {
+      const errorText = await response.text();
+      const error = new Error(`Failed to fetch groupbuys: HTTP ${response.status} - ${errorText}`);
+      (error as any).status = response.status; // 添加 status 屬性到錯誤物件
+      throw error;
+    }
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch groupbuys');
+    const data = await response.json();
+    return data;
+  } catch (err: unknown) {
+    const error = err as Error & { status?: number }; // 強制轉換為目標類型
+    console.error('Error in getGroupbuys:', {
+      message: error.message,
+      status: error.status || 'No status',
+      url: `${API_URL}/api/groupbuys`,
+    });
+    throw err;
   }
-
-  return await response.json();
 }
-
-
 
 export async function deleteGroupbuyById(id: number) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';

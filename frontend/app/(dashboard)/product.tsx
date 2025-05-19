@@ -1,4 +1,3 @@
-// frontend/app/dashboard/products/product.tsx
 'use client';
 
 import { useState } from 'react';
@@ -19,17 +18,21 @@ export type Groupbuy = {
   description?: string;
 };
 
-export function Product({
-  product,
-  onShowModal,
-  groupBuyId,
-  groupBuyOwner = '團長', // 預設團主名稱，實際應從後端獲取
-}: {
+interface ProductProps {
   product: Groupbuy;
   onShowModal: (product: Groupbuy) => void;
   groupBuyId?: string;
   groupBuyOwner?: string;
-}) {
+  addToCart: (id: number, title: string, price: number, quantity: number) => void;
+}
+
+export function Product({
+  product,
+  onShowModal,
+  groupBuyId,
+  groupBuyOwner = '團長',
+  addToCart,
+}: ProductProps) {
   const [quantity, setQuantity] = useState(1);
 
   const isClosed = product.status.toLowerCase() === 'closed';
