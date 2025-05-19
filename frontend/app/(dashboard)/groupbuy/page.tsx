@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import AuthGuard from '@/components/AuthGuard';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 type GroupBuy = {
   id: number;
@@ -98,9 +98,15 @@ export default function GroupBuyPage() {
                 <td className="px-4 py-2">
                   <Link
                     href={`/groupbuy/${item.id}/edit`}
-                    className="text-green-600 hover:underline"
+                    className="text-green-600 hover:underline mr-2"
                   >
                     編輯
+                  </Link>
+                  <Link
+                    href={`/dashboard/groupbuy/${item.id}/orders`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    查看訂單
                   </Link>
                 </td>
               </tr>

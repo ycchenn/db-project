@@ -117,5 +117,24 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// 查詢某團購的所有訂單（顧客、購買內容、付款狀態）
+router.get('/:id/orders', async (req, res) => {
+  const groupbuyId = req.params.id;
+  try {
+    const [orders] = await db.query(`
+      SELECT o.id, o.product, o.quantity, o.paid, o.created_at,
+             u.id as user_id, u.name as user_name, u.email as user_email
+      FROM orders o
+      JOIN users u ON o.user_id = u.id
+      WHERE o.groupbuy_id = ?
+      ORDER BY o.created_at DESC
+    `, [groupbuyId]);
+    res.json(orders);
+  } catch (err) {
+    console.error('查詢訂單失敗:', err);
+    res.status(500).json({ error: '查詢訂單失敗' });
+  }
+});
+
 export default router;
 

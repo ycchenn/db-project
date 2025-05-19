@@ -1,17 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+declare global {
+  interface Window {
+    __CURRENT_USER_ID__?: string;
+  }
+}
 
 export default function User() {
   const [user, setUser] = useState<{ email: string | null } | null>(null);
@@ -22,6 +28,10 @@ export default function User() {
     const email = localStorage.getItem('userEmail'); // 可選
     if (userId) {
       setUser({ email: email ?? null });
+    }
+    // --- 新增: 讓全域都能取得 userId ---
+    if (userId) {
+      window.__CURRENT_USER_ID__ = userId;
     }
   }, []);
 

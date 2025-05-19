@@ -30,6 +30,35 @@ CREATE TABLE IF NOT EXISTS `Coupon` (
 	CONSTRAINT FK_UploadedBy FOREIGN KEY (UploadedBy) REFERENCES `User`(UserId)
 );
 
+CREATE TABLE IF NOT EXISTS `orders` (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  groupbuy_id INT NOT NULL,
+  user_id INT NOT NULL,
+  product VARCHAR(255),
+  quantity INT,
+  paid BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (groupbuy_id) REFERENCES groupbuys(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 建立 groupbuys 資料表
+CREATE TABLE IF NOT EXISTS `groupbuys` (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  price DECIMAL(10,2) NOT NULL,
+  image_url VARCHAR(255),
+  status VARCHAR(32) DEFAULT '進行中',
+  max_count INT NOT NULL,
+  current_count INT DEFAULT 0,
+  deadline DATETIME NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES User(UserId)
+);
+
 INSERT INTO `User` (UserId, Email, Name, Password, JoinDate) 
 VALUES 
 (1, 'mavis123@gmail.com', 'Mavis', 'MavisPass2024!', NOW()),
