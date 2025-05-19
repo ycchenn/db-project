@@ -1,37 +1,36 @@
-import Link from 'next/link';
 import {
-  Home,
-  LineChart,
-  Package,
-  Package2,
-  PanelLeft,
-  Settings,
-  ShoppingCart,
-  Users2
+    Home,
+    LineChart,
+    Package,
+    Package2,
+    PanelLeft,
+    Settings,
+    ShoppingCart,
+    Users2
 } from 'lucide-react';
+import Link from 'next/link';
 
+import { GroupBuyIcon, VercelLogo } from '@/components/icons';
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger
 } from '@/components/ui/tooltip';
 import { Analytics } from '@vercel/analytics/react';
-import User from './user';
-import { VercelLogo } from '@/components/icons';
-import Providers from './providers';
 import { NavItem } from './nav-item';
+import Providers from './providers';
 import { SearchInput } from './search';
-import { GroupBuyIcon } from '@/components/icons';
+import User from './user';
 
 export default function DashboardLayout({
   children
@@ -85,9 +84,7 @@ function DesktopNav() {
 
         <NavItem href="/customers" label="Customers">
           <Users2 className="h-5 w-5" />
-        </NavItem>
-
-        <NavItem href="#" label="Analytics">
+        </NavItem>        <NavItem href="/analytics" label="Analytics">
           <LineChart className="h-5 w-5" />
         </NavItem>
 
