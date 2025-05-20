@@ -17,7 +17,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Product, Groupbuy } from './product';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -34,22 +33,7 @@ export function ProductsTable({
   totalProducts,
   addToCart,
 }: ProductsTableProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const productsPerPage = 5; // 固定每頁 5 個商品
   const [selectedProduct, setSelectedProduct] = useState<Groupbuy | null>(null);
-
-  function prevPage() {
-    const newOffset = Math.max(0, offset - productsPerPage);
-    console.log(`Navigating to previous page with offset: ${newOffset}`);
-    router.push(`/products?offset=${newOffset}`, { scroll: false });
-  }
-
-  function nextPage() {
-    const newOffset = offset + productsPerPage;
-    console.log(`Navigating to next page with offset: ${newOffset}`);
-    router.push(`/products?offset=${newOffset}`, { scroll: false });
-  }
 
   const handleCloseModal = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -96,42 +80,8 @@ export function ProductsTable({
         </Table>
       </CardContent>
       <CardFooter>
-        <div className="flex items-center w-full justify-between">
-          <div className="text-xs text-muted-foreground">
-            顯示{' '}
-            <strong>
-              {Number.isFinite(offset) && Number.isFinite(totalProducts) ? (
-                <>
-                  {Math.max(1, offset + 1)}–{Math.min(offset + productsPerPage, totalProducts)}
-                </>
-              ) : (
-                <>0–0</>
-              )}
-            </strong>{' '}
-            共 <strong>{totalProducts}</strong> 筆團購
-          </div>
-          <div className="flex">
-            <Button
-              onClick={prevPage}
-              variant="ghost"
-              size="sm"
-              type="button"
-              disabled={offset <= 0}
-            >
-              <ChevronLeft className="mr-2 h-4 w-4" />
-              上一頁
-            </Button>
-            <Button
-              onClick={nextPage}
-              variant="ghost"
-              size="sm"
-              type="button"
-              disabled={offset + productsPerPage >= totalProducts}
-            >
-              下一頁
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+        <div className="text-xs text-muted-foreground">
+          顯示共 <strong>{totalProducts}</strong> 筆團購
         </div>
       </CardFooter>
       {selectedProduct && (
@@ -165,7 +115,7 @@ export function ProductsTable({
                 size="sm"
                 onClick={() => {
                   addToCart(selectedProduct.id, selectedProduct.title, selectedProduct.price, 1);
-                  setSelectedProduct(null); // Close modal after adding
+                  setSelectedProduct(null);
                 }}
                 disabled={selectedProduct.status.toLowerCase() === 'closed' || selectedProduct.current_count >= selectedProduct.max_count}
               >

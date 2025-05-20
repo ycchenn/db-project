@@ -20,11 +20,12 @@ export default function GroupbuysPage() {
   const [cart, setCart] = useState<{ id: number; title: string; price: number; quantity: number }[]>([]);
 
   const searchParams = useSearchParams();
-  const offset = Number(searchParams.get('offset')) || 0;
-  const groupbuysPerPage = 5;
+  const offset = Number(searchParams.get('offset')) || 0; // 保留 offset 供未來使用，但不影響當前邏輯
+  const groupbuysPerPage = 5; // 保留，但不使用
   const router = useRouter();
 
   useEffect(() => {
+    setLoading(true);
     getGroupbuys()
       .then((data) => {
         setGroupbuys(data);
@@ -39,9 +40,10 @@ export default function GroupbuysPage() {
         });
         setLoading(false);
       });
-  }, []);
+  }, [offset]);
 
-  const paginatedAll = groupbuys.slice(offset, offset + groupbuysPerPage);
+  // 移除分頁限制，顯示所有團購
+  const allGroupbuys = groupbuys; // 直接使用完整 groupbuys
   const paginatedOpen = groupbuys
     .filter((groupbuy) => groupbuy.status.toLowerCase() === 'open')
     .slice(offset, offset + groupbuysPerPage);
@@ -124,7 +126,7 @@ export default function GroupbuysPage() {
           <p className="text-muted-foreground">載入中...</p>
         ) : (
           <ProductsTable
-            products={paginatedAll}
+            products={allGroupbuys}
             offset={offset}
             totalProducts={groupbuys.length}
             addToCart={addToCart}
@@ -139,9 +141,7 @@ export default function GroupbuysPage() {
           <ProductsTable
             products={paginatedOpen}
             offset={offset}
-            totalProducts={
-              groupbuys.filter((groupbuy) => groupbuy.status.toLowerCase() === 'open').length
-            }
+            totalProducts={groupbuys.filter((groupbuy) => groupbuy.status.toLowerCase() === 'open').length}
             addToCart={addToCart}
           />
         )}
@@ -154,9 +154,7 @@ export default function GroupbuysPage() {
           <ProductsTable
             products={paginatedFull}
             offset={offset}
-            totalProducts={
-              groupbuys.filter((groupbuy) => groupbuy.status.toLowerCase() === 'full').length
-            }
+            totalProducts={groupbuys.filter((groupbuy) => groupbuy.status.toLowerCase() === 'full').length}
             addToCart={addToCart}
           />
         )}
@@ -169,9 +167,7 @@ export default function GroupbuysPage() {
           <ProductsTable
             products={paginatedClosed}
             offset={offset}
-            totalProducts={
-              groupbuys.filter((groupbuy) => groupbuy.status.toLowerCase() === 'closed').length
-            }
+            totalProducts={groupbuys.filter((groupbuy) => groupbuy.status.toLowerCase() === 'closed').length}
             addToCart={addToCart}
           />
         )}
