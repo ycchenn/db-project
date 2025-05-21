@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   TableHead,
   TableRow,
@@ -16,35 +17,29 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Product, Groupbuy } from './product';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+interface ProductsTableProps {
+  products: Groupbuy[];
+  offset: number;
+  totalProducts: number;
+  addToCart: (id: number, title: string, price: number, quantity: number) => void;
+}
 
 export function ProductsTable({
   products,
   offset,
   totalProducts,
-}: {
-  products: Groupbuy[];
-  offset: number;
-  totalProducts: number;
-}) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const productsPerPage = 5;
+  addToCart,
+}: ProductsTableProps) {
+  const [selectedProduct, setSelectedProduct] = useState<Groupbuy | null>(null);
 
-  function prevPage() {
-    const newOffset = Math.max(0, offset - productsPerPage);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('offset', newOffset.toString());
-    router.push(`/dashboard/products?${params.toString()}`, { scroll: false });
-  }
-
-  function nextPage() {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('offset', offset.toString());
-    router.push(`/dashboard/products?${params.toString()}`, { scroll: false });
-  }
+  const handleCloseModal = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setSelectedProduct(null);
+    }
+  };
 
   return (
     <Card>
@@ -71,7 +66,12 @@ export function ProductsTable({
           <TableBody>
             {Array.isArray(products) ? (
               products.map((product) => (
-                <Product key={product.id} product={product} />
+                <Product
+                  key={product.id}
+                  product={product}
+                  addToCart={addToCart}
+                  onShowModal={setSelectedProduct}
+                />
               ))
             ) : (
               <p className="text-red-500">❌ 無法載入團購資料</p>
@@ -80,44 +80,51 @@ export function ProductsTable({
         </Table>
       </CardContent>
       <CardFooter>
-        <div className="flex items-center w-full justify-between">
-          <div className="text-xs text-muted-foreground">
-            顯示{' '}
-            <strong>
-              {Number.isFinite(offset) && Number.isFinite(totalProducts) ? (
-                <>
-                  {Math.max(0, Math.min(offset - productsPerPage, totalProducts) + 1)}–{Math.min(offset, totalProducts)}
-                </>
-              ) : (
-                <>0–0</>
-              )}
-            </strong>{' '}
-            共 <strong>{totalProducts}</strong> 筆團購
-          </div>
-          <div className="flex">
-            <Button
-              onClick={prevPage}
-              variant="ghost"
-              size="sm"
-              type="button"
-              disabled={offset === productsPerPage}
-            >
-              <ChevronLeft className="mr-2 h-4 w-4" />
-              上一頁
-            </Button>
-            <Button
-              onClick={nextPage}
-              variant="ghost"
-              size="sm"
-              type="button"
-              disabled={offset >= totalProducts}
-            >
-              下一頁
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+        <div className="text-xs text-muted-foreground">
+          顯示共 <strong>{totalProducts}</strong> 筆團購
         </div>
       </CardFooter>
+      {selectedProduct && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={handleCloseModal}
+        >
+          <div className="bg-white p-6 rounded-lg shadow-lg relative w-11/12 max-w-md">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={() => setSelectedProduct(null)}
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <h2 className="text-2xl font-bold mb-4">{selectedProduct.title}</h2>
+            <p><strong>狀態:</strong> {selectedProduct.status}</p>
+            <p><strong>價格:</strong> ${Number(selectedProduct.price).toFixed(2)}</p>
+            <p><strong>人數:</strong> {selectedProduct.current_count} / {selectedProduct.max_count}</p>
+            <p><strong>截止日:</strong> {new Date(selectedProduct.deadline).toLocaleDateString('zh-TW')}</p>
+            <p><strong>描述:</strong> {selectedProduct.description || '無描述'}</p>
+            <div className="mt-4">
+              <input
+                type="number"
+                min="1"
+                max={selectedProduct.max_count - selectedProduct.current_count}
+                defaultValue="1"
+                className="w-16 p-1 border rounded mr-2"
+                disabled={selectedProduct.status.toLowerCase() === 'closed'}
+              />
+              <Button
+                size="sm"
+                onClick={() => {
+                  addToCart(selectedProduct.id, selectedProduct.title, selectedProduct.price, 1);
+                  setSelectedProduct(null);
+                }}
+                disabled={selectedProduct.status.toLowerCase() === 'closed' || selectedProduct.current_count >= selectedProduct.max_count}
+              >
+                放入購物車
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

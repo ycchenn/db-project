@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 
 type Analytics = {
   totalGroupBuys: number;
