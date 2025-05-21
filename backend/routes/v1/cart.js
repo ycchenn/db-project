@@ -16,12 +16,15 @@ const router = Router();
 // JWT 認證中介層
 const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
+  console.log('Authorization Header:', authHeader); // 添加日誌
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(StatusCode.UNAUTHORIZED).json({ error: 'Missing or invalid token' });
   }
   const token = authHeader.split(' ')[1];
+  console.log('Extracted Token:', token); // 添加日誌
   try {
     const payload = await verifyJWT(token);
+    console.log('JWT payload:', payload); // 添加日誌
     req.user = payload;
     next();
   } catch (error) {
@@ -281,11 +284,14 @@ router.post('/checkout', authenticate, async (req, res) => {
 
     const total = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
     const orderId = generateOrderId(); // 使用自定義函數
+
+    // 插入訂單主表
     await mysqlConnectionPool.query(
       'INSERT INTO orders (id, user_id, group_buy_id, total) VALUES (?, ?, ?, ?)',
       [orderId, userId, groupBuyId || null, total]
     );
 
+    // 插入訂單詳細表
     for (const item of cart.items) {
       await mysqlConnectionPool.query(
         'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',

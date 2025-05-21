@@ -20,16 +20,16 @@ export default function LoginPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
+      });      const data = await res.json();
 
       if (!res.ok) {
         throw new Error(data.error || '登入失敗');
       }
 
-      // ✅ 成功：儲存 userId 並導向主頁
+      // ✅ 成功：儲存 userId 和 token 並導向主頁
       localStorage.setItem('userId', data.id);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify({ id: data.id, email: data.email }));
       router.push('/groupbuy'); // 登入成功導向團購清單
     } catch (err: any) {
       setError(err.message);

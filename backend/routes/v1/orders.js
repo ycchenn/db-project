@@ -29,6 +29,7 @@ router.get('/:id', authenticate, async (req, res) => {
       'SELECT id, user_id, total FROM orders WHERE id = ?',
       [id]
     );
+    console.log('Orders query result:', orders); // 添加日誌
     if (!orders.length) {
       return res.status(StatusCode.NOT_FOUND).json({ error: 'Order not found' });
     }
@@ -40,6 +41,7 @@ router.get('/:id', authenticate, async (req, res) => {
       'FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?',
       [id]
     );
+    console.log('Order items query result:', items); // 添加日誌
     res.json({ id: orders[0].id, total: orders[0].total, items });
   } catch (error) {
     console.error('Fetch order error:', error);
