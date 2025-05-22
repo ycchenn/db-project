@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ProductsTable } from './products-table';
 import { getGroupbuys, Groupbuy } from '@/lib/db';
 import { useSearchParams, useRouter } from 'next/navigation';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,14 @@ export default function GroupbuysPage() {
   const router = useRouter();
 
   useEffect(() => {
+
+    const user_id = localStorage.getItem('userId');
+    if (!user_id) {
+      alert('請先登入');
+      router.push('/login');
+      return;
+    }
+
     setLoading(true);
     getGroupbuys()
       .then((data) => {

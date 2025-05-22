@@ -99,7 +99,7 @@ export default function CreateGroupBuyPage() {
           />
         </div>
         <div>
-          <label className="block font-medium">人數上限</label>
+          <label className="block font-medium">成團人數</label>
           <input
             type="number"
             name="maxCount"
