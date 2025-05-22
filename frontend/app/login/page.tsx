@@ -30,7 +30,7 @@ export default function LoginPage() {
 
       // ✅ 成功：儲存 userId 並導向主頁
       localStorage.setItem('userId', data.id);
-      router.push('/groupbuy'); // 登入成功導向團購清單
+      router.push('http://localhost:3001/'); // 登入成功導向團購清單
     } catch (err: any) {
       setError(err.message);
     }
