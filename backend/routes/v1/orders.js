@@ -47,4 +47,39 @@ router.get('/:id', authenticate, async (req, res) => {
   }
 });
 
+router.get('/', async (req, res) => {
+  const { user_id, offset = 0, limit = 5 } = req.query;
+  
+  try {
+    // 簡化的用戶驗證，只檢查是否提供了 user_id
+    if (!user_id) {
+      return res.status(StatusCode.BAD_REQUEST).json({ error: '未提供用戶ID' });
+    }
+
+    // 獲取訂單總數
+    const [totalResult] = await mysqlConnectionPool.query(
+      'SELECT COUNT(*) as total FROM orders WHERE user_id = ?',
+      [user_id]
+    );
+    const totalOrders = totalResult[0].total;
+
+    // 獲取訂單列表
+    const [orders] = await mysqlConnectionPool.query(
+      `SELECT o.id, o.product, o.quantity, o.paid, o.created_at 
+       FROM orders o 
+       WHERE o.user_id = ? 
+       ORDER BY o.created_at DESC 
+       LIMIT ? OFFSET ?`,
+      [user_id, parseInt(limit), parseInt(offset)]
+    );    res.json({
+      orders: orders,                 // 訂單資料陣列
+      totalOrders: totalOrders,       // 該用戶的總訂單數
+      newOffset: orders.length < limit ? null : parseInt(offset) + orders.length  // 分頁用的位移值
+    });
+  } catch (error) {
+    console.error('獲取訂單列表錯誤:', error);
+    res.status(StatusCode.BAD_REQUEST).json({ error: '無法獲取訂單列表' });
+  }
+});
+
 export default router;
