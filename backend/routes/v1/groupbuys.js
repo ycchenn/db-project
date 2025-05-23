@@ -30,6 +30,7 @@ router.post('/', async (req, res) => {
     description,
     price,
     image_url,
+    status,
     max_count,
     deadline
   } = req.body;
@@ -37,10 +38,19 @@ router.post('/', async (req, res) => {
   const sql = `
     INSERT INTO groupbuys 
       (user_id, title, description, price, image_url, max_count, current_count, deadline, status)
-    VALUES (?, ?, ?, ?, ?, ?, 0, ?, '進行中')
+    VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)
   `;
   try {
-    await db.query(sql, [user_id, title, description, price, image_url, max_count, deadline]);
+    await db.query(sql, [
+      user_id,
+      title,
+      description,
+      price,
+      image_url,
+      max_count,
+      deadline,
+      status || 'open' // 使用前端傳來的 status，若為空則設為 'open'
+    ]);
     res.status(201).json({ message: '新增團購成功' });
   } catch (err) {
     console.error('❌ 新增失敗:', err);
@@ -78,7 +88,7 @@ router.put('/:id', async (req, res) => {
   try {
     let updatedStatus = status;
     if (parseInt(current_count) >= parseInt(max_count)) {
-      updatedStatus = '已成團';
+      updatedStatus = 'full'; // 改為 'full'
     }
 
     const sql = `
