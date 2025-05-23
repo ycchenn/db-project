@@ -8,6 +8,7 @@ type Analytics = {
   completedGroupBuys: number;
   ongoingGroupBuys: number;
   totalUsers: number;
+  uniqueOrderUsers?: number; // 新增：有下單過的顧客數
 };
 
 export default function AnalyticsPage() {
@@ -105,10 +106,10 @@ export default function AnalyticsPage() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">總會員數</CardTitle>
+            <CardTitle className="text-sm font-medium">買過我商品的顧客數</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.totalUsers}</div>
+            <div className="text-2xl font-bold">{analytics.uniqueOrderUsers ?? analytics.totalUsers}</div>
           </CardContent>
         </Card>
       </div>
