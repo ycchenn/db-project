@@ -16,7 +16,7 @@ export default function EditGroupBuyPage() {
     max_count: '',
     current_count: '',
     deadline: '',
-    status: '進行中',
+    status: 'open',
   });
 
   useEffect(() => {
@@ -166,10 +166,9 @@ export default function EditGroupBuyPage() {
             onChange={(e) => setForm({ ...form, status: e.target.value })}
             className="w-full border p-2 rounded"
           >
-            <option value="進行中">進行中</option>
-            <option value="已成團">已成團</option>
-            <option value="未成團">未成團</option>
-            <option value="已關閉">已關閉</option>
+            <option value="open">進行中</option>
+            <option value="full">已成團</option>
+            <option value="closed">已關閉</option>
           </select>
         </div>
         <div>

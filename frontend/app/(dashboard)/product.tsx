@@ -82,7 +82,7 @@ export function Product({
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
-    alert('已加入購物車');
+    
     setQuantity(1);
   };
 

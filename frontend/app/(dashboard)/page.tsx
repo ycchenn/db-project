@@ -86,48 +86,7 @@ export default function GroupbuysPage() {
             已關閉
           </TabsTrigger>
         </TabsList>
-        <div className="ml-auto flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" className="h-8 gap-1">
-                <ShoppingCart className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  購物車 ({cart.length})
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {cart.length === 0 ? (
-                <DropdownMenuItem disabled>購物車為空</DropdownMenuItem>
-              ) : (
-                cart.map((item) => (
-                  <DropdownMenuItem key={item.id}>
-                    {item.title} - ${item.price} x {item.quantity} = $
-                    {(item.price * item.quantity).toFixed(2)}
-                  </DropdownMenuItem>
-                ))
-              )}
-              {cart.length > 0 && (
-                <DropdownMenuItem>
-                  總計: $
-                  {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
-                </DropdownMenuItem>
-              )}
-              {cart.length > 0 && (
-                <DropdownMenuItem>
-                  <Button
-                    size="sm"
-                    className="h-8 gap-1 w-full"
-                    onClick={() => router.push('/orders')}
-                  >
-                    <ShoppingCart className="h-3.5 w-3.5" />
-                    <span>結帳</span>
-                  </Button>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        
       </div>
 
       <TabsContent value="all">
