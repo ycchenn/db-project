@@ -16,6 +16,7 @@ export type Groupbuy = {
   deadline: string;
   image_url?: string;
   description?: string;
+  seller_name?: string; // 新增賣家名稱欄位
 };
 
 interface ProductProps {
@@ -82,7 +83,6 @@ export function Product({
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
-    
     setQuantity(1);
   };
 
@@ -105,6 +105,7 @@ export function Product({
         )}
       </TableCell>
       <TableCell className="font-medium">{product.title}</TableCell>
+      <TableCell>{product.seller_name || '未知賣家'}</TableCell>
       <TableCell>
         <Badge variant="outline" className="capitalize">{product.status}</Badge>
       </TableCell>

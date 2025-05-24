@@ -54,6 +54,7 @@ export function ProductsTable({
                 <span className="sr-only">Image</span>
               </TableHead>
               <TableHead>商品名稱</TableHead>
+              <TableHead>賣家名稱</TableHead>
               <TableHead>狀態</TableHead>
               <TableHead className="hidden md:table-cell">價格</TableHead>
               <TableHead className="hidden md:table-cell">人數</TableHead>
@@ -97,6 +98,7 @@ export function ProductsTable({
               <X className="h-6 w-6" />
             </button>
             <h2 className="text-2xl font-bold mb-4">{selectedProduct.title}</h2>
+            <p><strong>賣家名稱:</strong> {selectedProduct.seller_name || '未知賣家'}</p>
             <p><strong>狀態:</strong> {selectedProduct.status}</p>
             <p><strong>價格:</strong> ${Number(selectedProduct.price).toFixed(2)}</p>
             <p><strong>人數:</strong> {selectedProduct.current_count} / {selectedProduct.max_count}</p>

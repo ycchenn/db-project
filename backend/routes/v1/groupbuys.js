@@ -3,25 +3,37 @@ import db from '../../lib/mysql.js';
 
 const router = Router();
 
-
 router.get('/', async (req, res) => {
   const userId = req.query.user_id;
 
   try {
     let rows;
     if (userId) {
-      [rows] = await db.query('SELECT * FROM groupbuys WHERE user_id = ?', [userId]);
+      [rows] = await db.query(`
+        SELECT g.*, u.name AS seller_name
+        FROM groupbuys g
+        LEFT JOIN users u ON g.user_id = u.id
+        WHERE g.user_id = ?
+      `, [userId]);
     } else {
-      [rows] = await db.query('SELECT * FROM groupbuys');
+      [rows] = await db.query(`
+        SELECT g.*, u.name AS seller_name
+        FROM groupbuys g
+        LEFT JOIN users u ON g.user_id = u.id
+      `);
     }
 
     res.json(rows);
   } catch (err) {
-    console.error('❌ 查詢失敗:', err);
-    res.status(500).json({ error: '查詢失敗' });
+    console.error('❌ 查詢失敗:', {
+      message: err.message,
+      code: err.code,
+      sql: err.sql,
+      stack: err.stack,
+    });
+    res.status(500).json({ error: '查詢失敗', details: err.message });
   }
 });
-
 
 router.post('/', async (req, res) => {
   const {
@@ -49,7 +61,7 @@ router.post('/', async (req, res) => {
       image_url,
       max_count,
       deadline,
-      status || 'open' // 使用前端傳來的 status，若為空則設為 'open'
+      status || 'open'
     ]);
     res.status(201).json({ message: '新增團購成功' });
   } catch (err) {
@@ -58,11 +70,15 @@ router.post('/', async (req, res) => {
   }
 });
 
-
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const [rows] = await db.query('SELECT * FROM groupbuys WHERE id = ?', [id]);
+    const [rows] = await db.query(`
+      SELECT g.*, u.name AS seller_name
+      FROM groupbuys g
+      LEFT JOIN users u ON g.user_id = u.id
+      WHERE g.id = ?
+    `, [id]);
     if (rows.length === 0) return res.status(404).json({ error: '找不到該團購' });
     res.json(rows[0]);
   } catch (err) {
@@ -70,7 +86,6 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: '查詢失敗' });
   }
 });
-
 
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
@@ -88,7 +103,7 @@ router.put('/:id', async (req, res) => {
   try {
     let updatedStatus = status;
     if (parseInt(current_count) >= parseInt(max_count)) {
-      updatedStatus = 'full'; // 改為 'full'
+      updatedStatus = 'full';
     }
 
     const sql = `
@@ -115,7 +130,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -127,7 +141,6 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// 查詢某團購的所有訂單（顧客、購買內容、付款狀態）
 router.get('/:id/orders', async (req, res) => {
   const groupbuyId = req.params.id;
   try {
@@ -147,4 +160,3 @@ router.get('/:id/orders', async (req, res) => {
 });
 
 export default router;
-
