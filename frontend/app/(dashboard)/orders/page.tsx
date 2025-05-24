@@ -55,7 +55,7 @@ export default function OrdersPage() {
   }, []);
 
   // 倒數計時：為每個團購計算
-  useEffect(() => {
+  /*useEffect(() => {
     const updateCountdowns = () => {
       const newCountdownMap: { [groupId: string]: string } = {};
       const newIsLockedMap: { [groupId: string]: boolean } = {};
@@ -80,7 +80,7 @@ export default function OrdersPage() {
     updateCountdowns();
     const interval = setInterval(updateCountdowns, 1000);
     return () => clearInterval(interval);
-  }, [cart.groupBuys]);
+  }, [cart.groupBuys]);*/
 
   // 計算總金額
   useEffect(() => {
@@ -239,7 +239,7 @@ export default function OrdersPage() {
         <Card key={owner} className="mb-6">
           <CardHeader>
             <CardTitle>
-              {owner} 的團購
+              
               {groupBuy && (
                 <Badge
                   variant={isLockedMap[groupBuy.groupId] ? 'destructive' : 'default'}
@@ -251,26 +251,10 @@ export default function OrdersPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {groupBuy && (
-              <div className="mb-4 p-4 border rounded bg-gray-50">
-                <h2 className="font-semibold">團購資訊</h2>
-                <p>團主: {groupBuy.owner}</p>
-                <p>團購 ID: {groupBuy.groupId}</p>
-                <p>目標人數: {groupBuy.targetQuantity}</p>
-                <p>目前人數: {groupBuy.currentQuantity}</p>
-                <p>截止時間: {new Date(groupBuy.deadline).toLocaleString('zh-TW')}</p>
-                <p>倒數計時: {countdownMap[groupBuy.groupId] || '載入中'}</p>
-              </div>
-            )}
+            
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>商品名稱</TableHead>
-                  <TableHead>數量</TableHead>
-                  <TableHead>單價</TableHead>
-                  <TableHead>總價</TableHead>
-                  <TableHead>操作</TableHead>
-                </TableRow>
+                
               </TableHeader>
               <TableBody>
                 {items.length === 0 ? (
@@ -354,17 +338,7 @@ export default function OrdersPage() {
             >
               清空購物車
             </Button>
-            <Button
-              onClick={() =>
-                joinGroupBuy(
-                  `group-${Math.random().toString(36).substring(2, 8)}`,
-                  `團長${Math.floor(Math.random() * 100)}`
-                )
-              }
-              disabled={cart.groupBuys.some((gb) => isLockedMap[gb.groupId] === true)}
-            >
-              加入團購
-            </Button>
+            
           </div>
           <div className="border-t pt-4">
             <p className="font-bold">總計: ${total.toFixed(2)}</p>
