@@ -84,7 +84,10 @@ export default function OrdersPage() {
 
   // 計算總金額
   useEffect(() => {
-    const total = cart.items.reduce((sum, item) => sum + (Number(item.totalPrice) || 0), 0);
+    const total = cart.items.reduce((sum, item: CartItem) => {
+      const totalPrice = Number(item.totalPrice);
+      return sum + (isNaN(totalPrice) ? 0 : totalPrice);
+    }, 0);
     setTotal(total);
   }, [cart.items]);
 
@@ -120,16 +123,14 @@ export default function OrdersPage() {
       return;
     }
     if (quantity < 1) return;
-    const updatedCart = { ...cart };
-    const item = updatedCart.items.find(
-      (item) => item.id === productId && item.group_buy_id === groupBuyId
+    const updatedItems = cart.items.map((item: CartItem) =>
+      item.id === productId && item.group_buy_id === groupBuyId
+        ? { ...item, quantity, totalPrice: item.unitPrice * quantity }
+        : item
     );
-    if (item) {
-      item.quantity = quantity;
-      item.totalPrice = item.unitPrice * quantity;
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      setCart(updatedCart);
-    }
+    const updatedCart = { ...cart, items: updatedItems };
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    setCart(updatedCart);
   };
 
   // 移除商品
@@ -159,26 +160,7 @@ export default function OrdersPage() {
     localStorage.setItem('cart', JSON.stringify(emptyCart));
     setCart(emptyCart);
   };
-
-  // 加入團購（模擬）
-  const joinGroupBuy = (groupId: string, owner: string = '團長') => {
-    const updatedCart = { ...cart, groupBuys: cart.groupBuys || [] };
-    if (!updatedCart.groupBuys.find((gb) => gb.groupId === groupId)) {
-      updatedCart.groupBuys.push({
-        groupId,
-        owner,
-        targetQuantity: 10,
-        currentQuantity: 5,
-        deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        status: 'active',
-      });
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      setCart(updatedCart);
-      alert('已加入團購');
-    } else {
-      alert('您已加入此團購');
-    }
-  };
+  
 
   // 結帳
   const checkout = () => {
@@ -191,7 +173,7 @@ export default function OrdersPage() {
       return;
     }
     const uniqueOwners = new Set(cart.groupBuys.map((gb) => gb.owner)).size;
-    setNotification(`結帳成功！共加入 ${uniqueOwners} 個團購，總金額：$${total.toFixed(2)}`);
+    setNotification(`結帳成功！總金額：$${total.toFixed(2)}`);
   
     // 儲存訂單資料到 localStorage（可選，作為訂單歷史記錄）
     const orderId = `order-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
@@ -254,7 +236,13 @@ export default function OrdersPage() {
             
             <Table>
               <TableHeader>
-                
+              <TableRow>
+                  <TableHead>商品名稱</TableHead>
+                  <TableHead>數量</TableHead>
+                  <TableHead>單價</TableHead>
+                  <TableHead>總價</TableHead>
+                  <TableHead>操作</TableHead>
+                </TableRow>
               </TableHeader>
               <TableBody>
                 {items.length === 0 ? (
