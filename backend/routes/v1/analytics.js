@@ -5,20 +5,38 @@ const router = Router();
 
 router.get('/', async (req, res) => {
   try {
+    // 取得團購主 id，優先用 query 參數 user_id
+    const ownerId = req.query.user_id;
+
     // 取得團購商品總數
-    const [totalGroupBuys] = await db.query('SELECT COUNT(*) as total FROM groupbuys');
+    const [totalGroupBuys] = await db.query('SELECT COUNT(*) as total FROM groupbuys' + (ownerId ? ' WHERE user_id = ?' : ''), ownerId ? [ownerId] : []);
     
     // 取得已成團的團購數
-    const [completedGroupBuys] = await db.query("SELECT COUNT(*) as completed FROM groupbuys WHERE status = '已成團'");
+    const [completedGroupBuys] = await db.query("SELECT COUNT(*) as completed FROM groupbuys WHERE status = '已成團'" + (ownerId ? ' AND user_id = ?' : ''), ownerId ? [ownerId] : []);
     
     // 取得進行中的團購數
-    const [ongoingGroupBuys] = await db.query("SELECT COUNT(*) as ongoing FROM groupbuys WHERE status = '進行中'");
+    const [ongoingGroupBuys] = await db.query("SELECT COUNT(*) as ongoing FROM groupbuys WHERE status = '進行中'" + (ownerId ? ' AND user_id = ?' : ''), ownerId ? [ownerId] : []);
     
     // 取得總會員數
     const [totalUsers] = await db.query('SELECT COUNT(*) as total FROM users');
     
-    // 取得有下單過的顧客數（user_id 在 orders 出現過的唯一數量）
-    const [uniqueOrderUsers] = await db.query('SELECT COUNT(DISTINCT user_id) as total FROM orders');
+    // 取得有下單過你開過的所有團購的顧客數（orders 裡 groupbuy_id 屬於你開的團購，user_id 不重複）
+    let uniqueOrderUsers;
+    if (ownerId) {
+      // 先查出你開過的所有團購 id
+      const [myGroupbuys] = await db.query('SELECT id FROM groupbuys WHERE user_id = ?', [ownerId]);
+      const groupbuyIds = myGroupbuys.map(gb => gb.id);
+      if (groupbuyIds.length > 0) {
+        [uniqueOrderUsers] = await db.query(
+          `SELECT COUNT(DISTINCT user_id) as total FROM orders WHERE groupbuy_id IN (${groupbuyIds.map(() => '?').join(',')})`,
+          groupbuyIds
+        );
+      } else {
+        uniqueOrderUsers = [{ total: 0 }];
+      }
+    } else {
+      [uniqueOrderUsers] = await db.query('SELECT COUNT(DISTINCT user_id) as total FROM orders');
+    }
 
     res.json({
       totalGroupBuys: totalGroupBuys[0].total,

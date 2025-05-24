@@ -102,12 +102,12 @@ export default function GroupBuyPage() {
                   >
                     編輯
                   </Link>
-                  <Link
+                  {/* <Link
                     href={`/dashboard/groupbuy/${item.id}/orders`}
                     className="text-blue-600 hover:underline"
                   >
                     查看訂單
-                  </Link>
+                  </Link> */}
                 </td>
               </tr>
             ))}

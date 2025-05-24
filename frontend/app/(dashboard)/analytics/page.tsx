@@ -21,8 +21,16 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function fetchAnalytics() {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      // 嘗試從 window 取得 userId，若無則 fallback 1
+      let userId: number = 1;
+      if (typeof window !== 'undefined' && window.__CURRENT_USER_ID__) {
+        userId = parseInt(window.__CURRENT_USER_ID__, 10) || 1;
+      } else {
+        const localId = localStorage.getItem('userId');
+        if (localId) userId = parseInt(localId, 10) || 1;
+      }
       try {
-        const response = await fetch(`${API_URL}/api/v1/analytics`);
+        const response = await fetch(`${API_URL}/api/v1/analytics?user_id=${userId}`);
         if (!response.ok) throw new Error('Failed to fetch analytics');
         const data = await response.json();
         setAnalytics(data);
@@ -76,31 +84,13 @@ export default function AnalyticsPage() {
 
   return (
     <div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">總團購數</CardTitle>
+            <CardTitle className="text-sm font-medium">我開過的團購</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.totalGroupBuys}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">已成團數</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analytics.completedGroupBuys}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">進行中團購數</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analytics.ongoingGroupBuys}</div>
+            <div className="text-2xl font-bold">{groupbuys.length}</div>
           </CardContent>
         </Card>
         
