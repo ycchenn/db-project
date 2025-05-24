@@ -16,7 +16,7 @@ type CartItem = {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
-  group_buy_id?: string;
+  groupbuy_id?: string;
 };
 
 type GroupBuy = {
@@ -54,33 +54,7 @@ export default function OrdersPage() {
     loadCart();
   }, []);
 
-  // 倒數計時：為每個團購計算
-  /*useEffect(() => {
-    const updateCountdowns = () => {
-      const newCountdownMap: { [groupId: string]: string } = {};
-      const newIsLockedMap: { [groupId: string]: boolean } = {};
-      (cart.groupBuys || []).forEach((groupBuy) => {
-        const deadline = new Date(groupBuy.deadline);
-        const isLocked = deadline < new Date();
-        newIsLockedMap[groupBuy.groupId] = isLocked;
-        newCountdownMap[groupBuy.groupId] = isLocked
-          ? '已過期'
-          : (() => {
-              const now = new Date();
-              const diff = deadline.getTime() - now.getTime();
-              const hours = Math.floor(diff / (1000 * 60 * 60));
-              const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-              const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-              return `${hours}h ${minutes}m ${seconds}s`;
-            })();
-      });
-      setCountdownMap(newCountdownMap);
-      setIsLockedMap(newIsLockedMap);
-    };
-    updateCountdowns();
-    const interval = setInterval(updateCountdowns, 1000);
-    return () => clearInterval(interval);
-  }, [cart.groupBuys]);*/
+  
 
   // 計算總金額
   useEffect(() => {
@@ -106,12 +80,12 @@ export default function OrdersPage() {
     (cart.groupBuys || []).forEach((groupBuy) => {
       grouped[groupBuy.owner] = {
         groupBuy,
-        items: cart.items.filter((item) => item.group_buy_id === groupBuy.groupId),
+        items: cart.items.filter((item) => item.groupbuy_id === groupBuy.groupId),
       };
     });
     grouped['無團購'] = {
       groupBuy: null,
-      items: cart.items.filter((item) => !item.group_buy_id),
+      items: cart.items.filter((item) => !item.groupbuy_id),
     };
     return grouped;
   };
@@ -124,7 +98,7 @@ export default function OrdersPage() {
     }
     if (quantity < 1) return;
     const updatedItems = cart.items.map((item: CartItem) =>
-      item.id === productId && item.group_buy_id === groupBuyId
+      item.id === productId && item.groupbuy_id === groupBuyId
         ? { ...item, quantity, totalPrice: item.unitPrice * quantity }
         : item
     );
@@ -142,7 +116,7 @@ export default function OrdersPage() {
     const updatedCart = {
       ...cart,
       items: cart.items.filter(
-        (item) => !(item.id === productId && item.group_buy_id === groupBuyId)
+        (item) => !(item.id === productId && item.groupbuy_id === groupBuyId)
       ),
     };
     localStorage.setItem('cart', JSON.stringify(updatedCart));
@@ -163,7 +137,7 @@ export default function OrdersPage() {
   
 
   // 結帳
-  const checkout = () => {
+  const checkout = async () => {
     if (cart.groupBuys.some((gb) => isLockedMap[gb.groupId] === true)) {
       alert('包含已過期的團購，無法結帳');
       return;
@@ -172,27 +146,59 @@ export default function OrdersPage() {
       alert('購物車為空，無法結帳');
       return;
     }
-    const uniqueOwners = new Set(cart.groupBuys.map((gb) => gb.owner)).size;
-    setNotification(`結帳成功！總金額：$${total.toFixed(2)}`);
+    const user_id = 3;
+
+    /*if (!user.id) {
+      alert('請先登入才能結帳');
+      return;
+    }*/
+    
+    //console.log('🔥 user:', user);
+    //const user_id = user.id;
+
+    const itemsWithGroupId = cart.items.map(item => ({
+      ...item,
+      groupbuy_id: item.groupbuy_id ?? item.id,
+    }));
   
-    // 儲存訂單資料到 localStorage（可選，作為訂單歷史記錄）
-    const orderId = `order-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
-    const orderData = {
-      id: orderId,
-      total,
-      items: cart.items,
-      groupBuys: cart.groupBuys,
-      createdAt: new Date().toISOString(),
-    };
-    const orderHistory = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-    orderHistory.push(orderData);
-    localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+    try {
+      const res = await fetch('http://localhost:3000/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ items: itemsWithGroupId, user_id }),
+      });
   
-    // 清空購物車
-    const emptyCart = { items: [], groupBuys: [] };
-    localStorage.setItem('cart', JSON.stringify(emptyCart));
-    setCart(emptyCart);
+      if (!res.ok) {
+        const errData = await res.json();
+        alert(`結帳失敗: ${errData.error}`);
+        return;
+      }
+  
+      setNotification(`結帳成功！總金額：$${total.toFixed(2)}`);
+  
+      const orderId = `order-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+      const orderData = {
+        id: orderId,
+        total,
+        items: cart.items,
+        groupBuys: cart.groupBuys,
+        createdAt: new Date().toISOString(),
+      };
+      const orderHistory = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+      orderHistory.push(orderData);
+      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+  
+      const emptyCart = { items: [], groupBuys: [] };
+      localStorage.setItem('cart', JSON.stringify(emptyCart));
+      setCart(emptyCart);
+    } catch (error) {
+      console.error('結帳失敗:', error);
+      alert('結帳失敗，請稍後再試');
+    }
   };
+  
 
   const groupedItems = groupItemsByOwner();
 
@@ -253,7 +259,7 @@ export default function OrdersPage() {
                   </TableRow>
                 ) : (
                   items.map((item) => (
-                    <TableRow key={`${item.id}-${item.group_buy_id || 'no-group'}`}>
+                    <TableRow key={`${item.id}-${item.groupbuy_id || 'no-group'}`}>
                       <TableCell>{item.name}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -261,9 +267,9 @@ export default function OrdersPage() {
                             size="sm"
                             variant="outline"
                             onClick={() =>
-                              updateQuantity(item.id, item.group_buy_id, item.quantity - 1)
+                              updateQuantity(item.id, item.groupbuy_id, item.quantity - 1)
                             }
-                            disabled={item.quantity <= 1 || !!isLockedMap[item.group_buy_id ?? '']}
+                            disabled={item.quantity <= 1 || !!isLockedMap[item.groupbuy_id ?? '']}
                           >
                             -
                           </Button>
@@ -273,20 +279,20 @@ export default function OrdersPage() {
                             onChange={(e) =>
                               updateQuantity(
                                 item.id,
-                                item.group_buy_id,
+                                item.groupbuy_id,
                                 parseInt(e.target.value) || 1
                               )
                             }
                             className="w-16 text-center"
-                            disabled={!!isLockedMap[item.group_buy_id ?? '']}
+                            disabled={!!isLockedMap[item.groupbuy_id ?? '']}
                           />
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() =>
-                              updateQuantity(item.id, item.group_buy_id, item.quantity + 1)
+                              updateQuantity(item.id, item.groupbuy_id, item.quantity + 1)
                             }
-                            disabled={!!isLockedMap[item.group_buy_id ?? '']}
+                            disabled={!!isLockedMap[item.groupbuy_id ?? '']}
                           >
                             +
                           </Button>
@@ -302,8 +308,8 @@ export default function OrdersPage() {
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => removeItem(item.id, item.group_buy_id)}
-                          disabled={!!isLockedMap[item.group_buy_id ?? '']}
+                          onClick={() => removeItem(item.id, item.groupbuy_id)}
+                          disabled={!!isLockedMap[item.groupbuy_id ?? '']}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

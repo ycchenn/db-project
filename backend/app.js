@@ -7,6 +7,8 @@ import cors from "./lib/cors.js";
 import v1 from "./routes/v1/api.js";
 import authRoutes from './routes/v1/auth.js';
 import groupbuyRouter from './routes/v1/groupbuys.js';
+import orderRoutes from './routes/v1/orders.js';
+console.log('🧪 orderRoutes is:', orderRoutes);
 
 console.log(process.env.DB_USER);  // 打印特定環境變數
 
@@ -38,6 +40,7 @@ app.get("/ping", pong);
 app.use('/api/v1', v1);
 app.use('/api/groupbuys', groupbuyRouter);
 app.use('/api', authRoutes);
+app.use('/api/orders', orderRoutes);
 
 // 添加一個測試路由
 app.get('/api/v1/test', (req, res) => {

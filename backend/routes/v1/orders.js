@@ -82,4 +82,38 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.post('/', async (req, res) => {
+  console.log('🔥 進入 POST /api/orders');
+  console.log('✅ 收到 POST /api/v1/orders 請求', req.body);
+  const { items, user_id } = req.body;
+
+  if (!Array.isArray(items) || items.length === 0 || !user_id) {
+    return res.status(400).json({ error: '缺少必要的資料' });
+  }
+
+  try {
+    const insertOrderSQL = `
+      INSERT INTO orders (groupbuy_id, user_id, product, quantity, paid, created_at)
+      VALUES (?, ?, ?, ?, 0, NOW())
+    `;
+
+    for (const item of items) {
+      const groupbuy_id = item.groupbuy_id || null;
+      const { name: product, quantity } = item;
+
+      await mysqlConnectionPool.query(insertOrderSQL, [
+        groupbuy_id,
+        user_id,
+        product,
+        quantity,
+      ]);
+    }
+
+    return res.status(200).json({ message: '訂單已成功儲存' });
+  } catch (error) {
+    console.error('寫入訂單失敗:', error);
+    return res.status(500).json({ error: '伺服器錯誤，請稍後再試' });
+  }
+});
+
 export default router;
