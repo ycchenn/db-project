@@ -29,7 +29,6 @@ import {
 import { Analytics } from '@vercel/analytics/react';
 import { NavItem } from './nav-item';
 import Providers from './providers';
-import { SearchInput } from './search';
 import User from './user';
 
 export default function DashboardLayout({
@@ -45,8 +44,9 @@ export default function DashboardLayout({
           <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
             <MobileNav />
             <DashboardBreadcrumb />
-            <SearchInput />
-            <User />
+            <div className="ml-auto">
+              <User />
+            </div>
           </header>
           <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-muted/40">
             {children}
