@@ -146,15 +146,12 @@ export default function OrdersPage() {
       alert('購物車為空，無法結帳');
       return;
     }
-    const user_id = 3;
+    //const user_id = 3;
 
-    /*if (!user.id) {
-      alert('請先登入才能結帳');
-      return;
-    }*/
     
-    //console.log('🔥 user:', user);
-    //const user_id = user.id;
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    console.log('🔥 user:', user);
+    const user_id = user.id;
 
     const itemsWithGroupId = cart.items.map(item => ({
       ...item,
