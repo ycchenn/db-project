@@ -9,6 +9,7 @@ type Analytics = {
   ongoingGroupBuys: number;
   totalUsers: number;
   uniqueOrderUsers?: number; // 新增：有下單過的顧客數
+  topProducts?: { product: string; totalSold: number }[]; // 新增：熱門商品排行
 };
 
 export default function AnalyticsPage() {
@@ -82,12 +83,26 @@ export default function AnalyticsPage() {
 
   if (!analytics) return <div>Loading...</div>;
 
+  // 熱門商品排行
+  const topProducts = analytics.topProducts || [];
+
+  // 計算每個我開過的團購的總下單量（所有商品數量加總），並依總下單量排序
+  const groupbuyOrderStats = groupbuys.map((g: any) => {
+    const orders = ordersMap[g.id] || [];
+    const totalQuantity = orders.reduce((sum: number, order: any) => sum + (order.quantity || 0), 0);
+    return {
+      id: g.id,
+      title: g.title,
+      totalQuantity,
+    };
+  }).sort((a, b) => b.totalQuantity - a.totalQuantity);
+
   return (
     <div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">我開過的團購</CardTitle>
+            <CardTitle className="text-sm font-medium">我ㄉ團</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{groupbuys.length}</div>
@@ -96,12 +111,62 @@ export default function AnalyticsPage() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">買過我商品的顧客數</CardTitle>
+            <CardTitle className="text-sm font-medium">我ㄉ顧客</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{analytics.uniqueOrderUsers ?? analytics.totalUsers}</div>
           </CardContent>
         </Card>
+      </div>
+      {/* 熱門商品排行區塊移除，直接顯示我的熱門團購排行 */}
+      <div className="mt-8 mb-8">
+        <h2 className="text-lg font-bold mb-4">我的熱門團購排行</h2>
+        {groupbuyOrderStats.length === 0 ? (
+          <div className="text-gray-400 mb-2">目前沒有團購</div>
+        ) : (
+          <div className="relative flex justify-center items-end gap-4" style={{ minHeight: 160 }}>
+            {/* 數線背景 */}
+            <div className="absolute left-0 right-0 bottom-0 h-full flex flex-col justify-end z-0 pointer-events-none">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="border-t border-dashed border-gray-300" style={{ height: 32 }} />
+              ))}
+            </div>
+            {/* 頒獎台動態高度 */}
+            {(() => {
+              const top3 = groupbuyOrderStats.slice(0, 3);
+              // 依照頒獎台順序：第二名、第一名、第三名
+              const podiumOrder = [1, 0, 2];
+              // 取最大數量，避免除以 0
+              const maxQuantity = Math.max(...top3.map(g => g.totalQuantity), 1);
+              // 設定最大/最小高度
+              const MAX_HEIGHT = 120;
+              const MIN_HEIGHT = 40;
+              const podium = [
+                { medal: '🥈', color: 'bg-gray-200', label: '第二名' },
+                { medal: '🥇', color: 'bg-yellow-200', label: '第一名' },
+                { medal: '🥉', color: 'bg-orange-200', label: '第三名' },
+              ];
+              return podium.map((p, idx) => {
+                const realIdx = podiumOrder[idx];
+                const data = top3[realIdx] || { title: '', totalQuantity: 0 };
+                // 動態高度
+                const height = data.totalQuantity > 0
+                  ? Math.round((data.totalQuantity / maxQuantity) * (MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT)
+                  : MIN_HEIGHT;
+                return (
+                  <div key={p.label} className="flex flex-col items-center justify-end z-10" style={{ minWidth: 100 }}>
+                    <div className={`rounded-t-md w-full flex flex-col items-center justify-end ${p.color}`} style={{ height }}>
+                      <span className="text-3xl mb-1">{p.medal}</span>
+                      <span className="font-semibold text-base text-center break-words">{data.title}</span>
+                      <span className="text-gray-600 text-sm">{data.totalQuantity} 件</span>
+                    </div>
+                    <span className="mt-2 text-xs text-gray-500">{p.label}</span>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+        )}
       </div>
       <div className="mt-8">
         <h2 className="text-lg font-bold mb-4">我開過的團購</h2>

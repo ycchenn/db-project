@@ -38,12 +38,32 @@ router.get('/', async (req, res) => {
       [uniqueOrderUsers] = await db.query('SELECT COUNT(DISTINCT user_id) as total FROM orders');
     }
 
+    // 取得熱門商品排行（僅統計自己開過的團購，依售出數量前3名）
+    let topProducts = [];
+    if (ownerId) {
+      // 查出自己開過的所有團購 id
+      const [myGroupbuys] = await db.query('SELECT id FROM groupbuys WHERE user_id = ?', [ownerId]);
+      const groupbuyIds = myGroupbuys.map(gb => gb.id);
+      if (groupbuyIds.length > 0) {
+        [topProducts] = await db.query(
+          `SELECT product, SUM(quantity) as totalSold
+           FROM orders
+           WHERE groupbuy_id IN (${groupbuyIds.map(() => '?').join(',')})
+           GROUP BY product
+           ORDER BY totalSold DESC
+           LIMIT 3`,
+          groupbuyIds
+        );
+      }
+    }
+
     res.json({
       totalGroupBuys: totalGroupBuys[0].total,
       completedGroupBuys: completedGroupBuys[0].completed,
       ongoingGroupBuys: ongoingGroupBuys[0].ongoing,
       totalUsers: totalUsers[0].total,
-      uniqueOrderUsers: uniqueOrderUsers[0].total
+      uniqueOrderUsers: uniqueOrderUsers[0].total,
+      topProducts // 新增熱門商品排行
     });
   } catch (err) {
     console.error('❌ 查詢統計資料失敗:', err);
