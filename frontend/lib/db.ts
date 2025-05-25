@@ -11,7 +11,7 @@ export type Groupbuy = {
 };
 
 // 若有需求支援分頁與搜尋，可擴充參數
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export async function getGroupbuys(): Promise<Groupbuy[]> {
   try {
@@ -43,7 +43,7 @@ export async function getGroupbuys(): Promise<Groupbuy[]> {
 }
 
 export async function deleteGroupbuyById(id: number) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
   const res = await fetch(`${API_URL}/api/groupbuys/${id}`, {
     method: 'DELETE',
     headers: {

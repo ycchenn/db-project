@@ -23,7 +23,8 @@ export default function CreateGroupBuyPage() {
     e.preventDefault();
   
     try {
-      const res = await fetch('http://localhost:3000/api/groupbuys', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetch(`${API_URL}/api/groupbuys`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
