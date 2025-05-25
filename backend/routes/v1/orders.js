@@ -63,10 +63,19 @@ router.get('/', async (req, res) => {
     );
     const totalOrders = totalResult[0].total;
 
+    // 獲取未付款訂單數量
+    const [unpaidResult] = await mysqlConnectionPool.query(
+      'SELECT COUNT(*) as unpaidCount FROM orders a join groupbuys b on a.groupbuy_id=b.id WHERE a.user_id = ? AND a.paid = 0 and DATEDIFF(DATE(b.deadline), DATE(NOW()))<2 ',
+      [user_id]
+    );
+    const unpaidCount = unpaidResult[0].unpaidCount;
+    console.log('未付款訂單數量:', unpaidCount);
+
     // 獲取訂單列表
     const [orders] = await mysqlConnectionPool.query(
-      `SELECT o.id, o.product, o.quantity, o.paid, o.created_at 
+      `SELECT o.id, o.product, o.quantity, o.paid, o.created_at, DATE_FORMAT(deadline, '%Y-%m-%d') deadline  
        FROM orders o 
+       join groupbuys g on o.groupbuy_id=g.id
        WHERE o.user_id = ? 
        ORDER BY o.created_at DESC 
        LIMIT ? OFFSET ?`,
@@ -74,6 +83,7 @@ router.get('/', async (req, res) => {
     );    res.json({
       orders: orders,                 // 訂單資料陣列
       totalOrders: totalOrders,       // 該用戶的總訂單數
+      unpaidCount: unpaidCount,     // 新增未付款訂單數量
       newOffset: orders.length < limit ? null : parseInt(offset) + orders.length  // 分頁用的位移值
     });
   } catch (error) {

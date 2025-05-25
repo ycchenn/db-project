@@ -18,6 +18,7 @@ import {
 import { useEffect, useState } from 'react';
 
 type Order = {
+  deadline: string;
   id: number;
   product: string;
   quantity: number;
@@ -57,6 +58,8 @@ export default function CustomersPage() {
   const [totalOrders, setTotalOrders] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [currentOffset, setCurrentOffset] = useState(0);
+  const [unpaidCount, setUnpaidCount] = useState(0);   // 新增狀態
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     // 初次載入資料
@@ -64,6 +67,11 @@ export default function CustomersPage() {
       setOrders(data.orders);
       setTotalOrders(data.totalOrders);
       setCurrentOffset(data.orders.length);
+      setUnpaidCount(data.unpaidCount);   // 設定未取貨訂單數
+      if (data.unpaidCount > 0) {
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000); // 3秒後關閉
+      }
     });
   }, []);
 
@@ -82,11 +90,29 @@ export default function CustomersPage() {
     }
   };
 
+  
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>我的訂購紀錄</CardTitle>
         <CardDescription>查看所有訂購紀錄與狀態。</CardDescription>
+        {unpaidCount > 0 && (
+          <div className="mt-2 p-2 bg-yellow-100 text-yellow-800 rounded-md text-sm font-medium">
+            你有 {unpaidCount} 筆即將到期的訂單未取貨(1日後)，請盡快完成取貨。
+          </div>
+        )}
+
+        {showToast && (
+          <div
+            className="fixed left-1/2 top-10 transform -translate-x-1/2 bg-yellow-300 text-yellow-900 px-6 py-3 rounded shadow-lg
+               animate-fadeInOut"
+            role="alert"
+          >
+            你有 {unpaidCount} 筆即將到期的訂單未取貨(1日後)，請盡快完成取貨。
+          </div>
+        )}
+
       </CardHeader>
       <CardContent>
         <Table>
@@ -94,7 +120,8 @@ export default function CustomersPage() {
             <TableRow>
               <TableHead>產品</TableHead>
               <TableHead>數量</TableHead>
-              <TableHead>付款狀態</TableHead>
+              <TableHead>取貨狀態</TableHead>
+              <TableHead>取貨截止日期</TableHead>
               <TableHead>訂購日期</TableHead>
             </TableRow>
           </TableHeader>
@@ -103,7 +130,10 @@ export default function CustomersPage() {
               <TableRow key={order.id}>
                 <TableCell>{order.product}</TableCell>
                 <TableCell>{order.quantity}</TableCell>
-                <TableCell>{order.paid ? '已付款' : '未付款'}</TableCell>
+                <TableCell>{order.paid ? '已取貨' : '未取貨'}</TableCell>
+                <TableCell>
+                  {(order.deadline)}
+                </TableCell>
                 <TableCell>
                   {new Date(order.created_at).toLocaleDateString('zh-TW')}
                 </TableCell>
@@ -131,4 +161,9 @@ export default function CustomersPage() {
       </CardContent>
     </Card>
   );
+
+
+
+
+
 }
