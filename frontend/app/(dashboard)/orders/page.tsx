@@ -38,21 +38,23 @@ export default function OrdersPage() {
 
   // 初始化：從 localStorage 載入購物車
   useEffect(() => {
-    const loadCart = () => {
-      const storedCart = JSON.parse(localStorage.getItem('cart') || '{"items":[],"groupBuys":[]}');
-      // 確保 items 和 groupBuys 是陣列
-      const normalizedCart = {
-        items: Array.isArray(storedCart.items) ? storedCart.items.map((item: any) => ({
-          ...item,
-          unitPrice: Number(item.unitPrice),
-          totalPrice: Number(item.totalPrice),
-        })) : [],
-        groupBuys: Array.isArray(storedCart.groupBuys) ? storedCart.groupBuys : [],
-      };
-      setCart(normalizedCart);
+    const loadCartFromDB = async () => {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user.id) return;
+      
+      console.log('🔥 user:', user);
+      const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+      const data = await res.json();
+      setCart({
+        items: data.items || [],
+        groupBuys: data.groupBuy ? [data.groupBuy] : [],
+      });
     };
-    loadCart();
+    loadCartFromDB();
   }, []);
+  
+  
+  
 
   
 
@@ -73,67 +75,123 @@ export default function OrdersPage() {
     }
   }, [notification]);
 
-  // 按團主分組商品
-  const groupItemsByOwner = () => {
-    const grouped: { [owner: string]: { groupBuy: GroupBuy | null; items: CartItem[] } } = {};
-    // 防護：確保 groupBuys 是陣列
-    (cart.groupBuys || []).forEach((groupBuy) => {
-      grouped[groupBuy.owner] = {
-        groupBuy,
-        items: cart.items.filter((item) => item.groupbuy_id === groupBuy.groupId),
-      };
+  
+
+
+  const loadCartFromDB = async () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+  
+    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    const data = await res.json();
+    setCart({
+      items: data.items || [],
+      groupBuys: data.groupBuys || [],
     });
-    grouped['無團購'] = {
-      groupBuy: null,
-      items: cart.items.filter((item) => !item.groupbuy_id),
-    };
-    return grouped;
   };
+  
+
 
   // 修改數量
-  const updateQuantity = (productId: string, groupBuyId: string | undefined, quantity: number) => {
+  const updateQuantity = async (productId: string, groupBuyId: string | undefined, quantity: number) => {
+    console.log('🧪 呼叫 updateQuantity:', { productId, groupBuyId, quantity });
     if (groupBuyId && isLockedMap[groupBuyId]) {
       alert('團購已過期，無法修改');
       return;
     }
     if (quantity < 1) return;
-    const updatedItems = cart.items.map((item: CartItem) =>
-      item.id === productId && item.groupbuy_id === groupBuyId
-        ? { ...item, quantity, totalPrice: item.unitPrice * quantity }
-        : item
-    );
-    const updatedCart = { ...cart, items: updatedItems };
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    setCart(updatedCart);
+  
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+  
+    try {
+      await fetch('http://localhost:3000/api/cart', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          productId,
+          quantity
+        }),
+      });
+      
+      // 更新本地購物車數據
+      const updatedItems = cart.items.map(item => {
+        if (item.id === productId) {
+          return {
+            ...item,
+            quantity: quantity,
+            totalPrice: Number(item.unitPrice) * quantity
+          };
+        }
+        return item;
+      });
+      
+      setCart(prev => ({
+        ...prev,
+        items: updatedItems
+      }));
+
+      // 重新計算總金額
+      const newTotal = updatedItems.reduce((sum, item) => sum + Number(item.totalPrice), 0);
+      setTotal(Number(newTotal));
+
+      setTimeout(() => {
+        loadCartFromDB(); // ← 載入最新資料
+      }, 300);
+    } catch (error) {
+      console.error('更新數量失敗:', error);
+      alert('更新數量失敗');
+    }
   };
+  
 
   // 移除商品
-  const removeItem = (productId: string, groupBuyId: string | undefined) => {
+  const removeItem = async (productId: string, groupBuyId: string | undefined) => {
     if (groupBuyId && isLockedMap[groupBuyId]) {
       alert('團購已過期，無法修改');
       return;
     }
-    const updatedCart = {
-      ...cart,
-      items: cart.items.filter(
-        (item) => !(item.id === productId && item.groupbuy_id === groupBuyId)
-      ),
-    };
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    setCart(updatedCart);
+  
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+  
+    try {
+      await fetch(`http://localhost:3000/api/cart/${user.id}/${productId}`, {
+        method: 'DELETE',
+      });
+      await loadCartFromDB(); // ← 載入最新資料
+    } catch (error) {
+      console.error('刪除商品失敗:', error);
+      alert('刪除商品失敗');
+    }
   };
+  
 
   // 清空購物車
-  const clearCart = () => {
+  const clearCart = async () => {
     if (cart.groupBuys.some((gb) => isLockedMap[gb.groupId] === true)) {
       alert('包含已過期的團購，無法清空');
       return;
     }
     if (!confirm('確定要清空購物車嗎？')) return;
-    const emptyCart = { items: [], groupBuys: [] };
-    localStorage.setItem('cart', JSON.stringify(emptyCart));
-    setCart(emptyCart);
+  
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+  
+    try {
+      await fetch(`http://localhost:3000/api/cart/${user.id}`, {
+        method: 'DELETE',
+      });
+      setTimeout(() => {
+        loadCartFromDB();// ← 載入最新資料
+      }, 300); 
+    } catch (error) {
+      console.error('清空購物車失敗:', error);
+      alert('清空購物車失敗');
+    }
   };
+  
   
 
   // 結帳
@@ -165,7 +223,10 @@ export default function OrdersPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ items: itemsWithGroupId, user_id }),
+        body: JSON.stringify({
+          items: cart.items,
+          user_id: user.id,
+        }),
       });
   
       if (!res.ok) {
@@ -196,9 +257,6 @@ export default function OrdersPage() {
       alert('結帳失敗，請稍後再試');
     }
   };
-  
-
-  const groupedItems = groupItemsByOwner();
 
   return (
     <div className="p-6">
@@ -221,105 +279,64 @@ export default function OrdersPage() {
         </div>
       )}
       <h1 className="text-2xl font-bold mb-6">我的購物車</h1>
-      {Object.entries(groupedItems).map(([owner, { groupBuy, items }]) => (
-        <Card key={owner} className="mb-6">
-          <CardHeader>
-            <CardTitle>
-              
-              {groupBuy && (
-                <Badge
-                  variant={isLockedMap[groupBuy.groupId] ? 'destructive' : 'default'}
-                  className="ml-2"
-                >
-                  {isLockedMap[groupBuy.groupId] ? '已鎖定' : groupBuy.status}
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            
-            <Table>
-              <TableHeader>
+      
+        <Card>
+        <CardHeader>
+          <CardTitle>購物車內容</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
               <TableRow>
-                  <TableHead>商品名稱</TableHead>
-                  <TableHead>數量</TableHead>
-                  <TableHead>單價</TableHead>
-                  <TableHead>總價</TableHead>
-                  <TableHead>操作</TableHead>
+                <TableHead>商品名稱</TableHead>
+                <TableHead>數量</TableHead>
+                <TableHead>單價</TableHead>
+                <TableHead>總價</TableHead>
+                <TableHead>操作</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {cart.items.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">購物車為空</TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center">
-                      {owner === '無團購' ? '無團購商品' : '此團購無商品'}
+              ) : (
+                cart.items.map((item) => (
+                  <TableRow key={`${item.id}-${item.groupbuy_id ?? 'no-group'}`}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline"
+                          onClick={() => updateQuantity(item.id, item.groupbuy_id, item.quantity - 1)}
+                          disabled={item.quantity <= 1}>
+                          -
+                        </Button>
+                        <Input type="number" value={item.quantity}
+                          onChange={(e) =>
+                            updateQuantity(item.id, item.groupbuy_id, parseInt(e.target.value) || 1)}
+                          className="w-16 text-center" />
+                        <Button size="sm" variant="outline"
+                          onClick={() => updateQuantity(item.id, item.groupbuy_id, item.quantity + 1)}>
+                          +
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell>${Number(item.unitPrice).toFixed(2)}</TableCell>
+                    <TableCell>${Number(item.totalPrice).toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Button size="sm" variant="destructive"
+                        onClick={() => removeItem(item.id, item.groupbuy_id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  items.map((item) => (
-                    <TableRow key={`${item.id}-${item.groupbuy_id || 'no-group'}`}>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              updateQuantity(item.id, item.groupbuy_id, item.quantity - 1)
-                            }
-                            disabled={item.quantity <= 1 || !!isLockedMap[item.groupbuy_id ?? '']}
-                          >
-                            -
-                          </Button>
-                          <Input
-                            type="number"
-                            value={item.quantity}
-                            onChange={(e) =>
-                              updateQuantity(
-                                item.id,
-                                item.groupbuy_id,
-                                parseInt(e.target.value) || 1
-                              )
-                            }
-                            className="w-16 text-center"
-                            disabled={!!isLockedMap[item.groupbuy_id ?? '']}
-                          />
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              updateQuantity(item.id, item.groupbuy_id, item.quantity + 1)
-                            }
-                            disabled={!!isLockedMap[item.groupbuy_id ?? '']}
-                          >
-                            +
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        ${isNaN(item.unitPrice) ? '無效價格' : Number(item.unitPrice).toFixed(2)}
-                      </TableCell>
-                      <TableCell>
-                        ${isNaN(item.totalPrice) ? '無效價格' : Number(item.totalPrice).toFixed(2)}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => removeItem(item.id, item.groupbuy_id)}
-                          disabled={!!isLockedMap[item.groupbuy_id ?? '']}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      ))}
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+      
       <Card>
         <CardContent className="pt-6">
           <div className="flex justify-between mb-4">
