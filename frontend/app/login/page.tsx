@@ -26,12 +26,11 @@ export default function LoginPage() {
 
       if (!res.ok) {
         throw new Error(data.error || '登入失敗');
-      }
-
-      // ✅ 成功：儲存 userId 並導向主頁
+      }      // ✅ 成功：儲存 userId、token 並導向主頁
       localStorage.setItem('userId', data.id);
       localStorage.setItem('user', JSON.stringify({ id: data.id, name: data.name }));
-      router.push('http://localhost:3001/'); // 登入成功導向團購清單
+      localStorage.setItem('token', data.token); // 保存 token
+      router.push('/'); // 登入成功導向主頁
     } catch (err: any) {
       setError(err.message);
     }

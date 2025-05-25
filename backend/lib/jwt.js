@@ -11,7 +11,7 @@ import { JWT } from "./constants.js";
  * @param {Payload} payload
  * @returns {Promise<string>}
  */
-export async function signJWT(payload) {
+export async function generateJWT(payload) {
   return await new jose.SignJWT(payload)
     .setProtectedHeader({ alg: JWT.ALG })
     .setExpirationTime("2h")

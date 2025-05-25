@@ -1,16 +1,13 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import bodyParser from "body-parser";
-import express from "express";
-import cors from "./lib/cors.js";
-import v1 from "./routes/v1/api.js";
+import bodyParser from 'body-parser';
+import express from 'express';
+import cors from './lib/cors.js';
+import v1 from './routes/v1/api.js';
 import authRoutes from './routes/v1/auth.js';
 import groupbuyRouter from './routes/v1/groupbuys.js';
 import orderRoutes from './routes/v1/orders.js';
-console.log('🧪 orderRoutes is:', orderRoutes);
-
-console.log(process.env.DB_USER);  // 打印特定環境變數
 
 
 /**

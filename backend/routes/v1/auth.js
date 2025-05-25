@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import db from '../../lib/mysql.js';
 import bcrypt from 'bcrypt';
+import { generateJWT } from '../../lib/jwt.js';
 
 const router = Router();
 

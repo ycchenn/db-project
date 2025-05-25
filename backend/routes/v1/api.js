@@ -6,6 +6,7 @@ import couponRouter from './coupon.js';
 import groupbuyRouter from './groupbuys.js';
 import ordersRouter from './orders.js';
 import userRouter from './user.js';
+import notificationsRouter from './notifications.js';
 
 const v1 = Router();
 v1.use('/user', userRouter);
@@ -14,5 +15,6 @@ v1.use('/groupbuys', groupbuyRouter);
 v1.use('/cart', cartRouter);
 v1.use('/orders', ordersRouter);
 v1.use('/analytics', analyticsRouter);
+v1.use('/notifications', notificationsRouter);
 
 export default v1;
