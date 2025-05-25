@@ -27,7 +27,8 @@ export default function GroupBuyPage() {
       return;
     }
 
-    fetch(`http://localhost:3000/api/groupbuys?user_id=${user_id}`)
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+    fetch(`${API_URL}/api/groupbuys?user_id=${user_id}`)
       .then((res) => {
         if (!res.ok) throw new Error(`API 錯誤 (${res.status})`);
         return res.json();

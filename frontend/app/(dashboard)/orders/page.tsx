@@ -159,7 +159,8 @@ export default function OrdersPage() {
     }));
   
     try {
-      const res = await fetch('http://localhost:3000/api/orders', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
