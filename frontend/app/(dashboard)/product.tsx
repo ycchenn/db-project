@@ -20,7 +20,7 @@ export type Groupbuy = {
 
 interface ProductProps {
   product: Groupbuy;
-  onShowModal: (product: Groupbuy) => void;
+  onShowModal: (product: Groupbuy, zoomImage?: boolean) => void; // 修改 onShowModal，添加 zoomImage 參數
   groupBuyId?: string;
   groupBuyOwner?: string;
   addToCart: (id: number, title: string, price: number, quantity: number) => void;
@@ -85,17 +85,25 @@ export function Product({
     setQuantity(1);
   };
 
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 防止點擊圖片時觸發模態框
+    if (product.image_url) {
+      onShowModal(product, true); // 點擊圖片時傳遞 zoomImage=true
+    }
+  };
+
   return (
     <TableRow
-      onClick={() => !isClosed && onShowModal(product)}
+      onClick={() => !isClosed && onShowModal(product)} // 點擊其他部分時不放大圖片
       className={isClosed ? '' : 'cursor-pointer hover:bg-gray-100'}
     >
       <TableCell className="hidden sm:table-cell">
         {product.image_url ? (
           <img
             alt="Product image"
-            className="w-14 h-14 object-cover rounded"
+            className="w-14 h-14 object-cover rounded cursor-pointer"
             src={product.image_url}
+            onClick={handleImageClick}
           />
         ) : (
           <span className="text-sm text-muted-foreground">無圖片</span>
