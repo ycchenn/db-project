@@ -31,7 +31,7 @@ export default function LoginPage() {
       // ✅ 成功：儲存 userId 並導向主頁
       localStorage.setItem('userId', data.id);
       localStorage.setItem('user', JSON.stringify({ id: data.id, name: data.name }));
-      router.push('http://localhost:3001/'); // 登入成功導向團購清單
+      router.push('/'); // 登入成功導向首頁
     } catch (err: any) {
       setError(err.message);
     }
