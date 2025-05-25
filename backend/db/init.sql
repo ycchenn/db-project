@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS `Coupon` (
   CONSTRAINT FK_UploadedBy FOREIGN KEY (UploadedBy) REFERENCES `users`(id)
 );
 
--- 新版 groupbuys 與 orders table，並保留原本 v1 結構
+-- 新增新版 groupbuys 與 orders table，並保留原本 v1 結構
 CREATE TABLE IF NOT EXISTS `groupbuys` (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
@@ -112,16 +112,6 @@ CREATE TABLE IF NOT EXISTS `orders` (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (groupbuy_id) REFERENCES groupbuys(id),
   FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 新增notifications表
-CREATE TABLE IF NOT EXISTS `notifications` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT NOT NULL,
-  `content` TEXT NOT NULL,
-  `reference_id` VARCHAR(255),
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 
 -- 插入用戶（密碼需使用 bcrypt 加密）

@@ -18,7 +18,6 @@ export default function AnalyticsPage() {
   const [loadingGroupbuys, setLoadingGroupbuys] = useState(true);
   const [ordersMap, setOrdersMap] = useState<Record<number, any[]>>({});
   const [loadingOrders, setLoadingOrders] = useState(false);
-  const [sendingNotification, setSendingNotification] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchAnalytics() {
@@ -96,42 +95,7 @@ export default function AnalyticsPage() {
       title: g.title,
       totalQuantity,
     };
-  }).sort((a, b) => b.totalQuantity - a.totalQuantity);  const sendNotification = async (groupBuyId: number) => {
-    setSendingNotification(groupBuyId);
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const userId = localStorage.getItem('userId');
-    
-    if (!userId) {
-      console.error('No userId found');
-      alert('請先登入');
-      return;
-    }
-    
-    try {
-      const response = await fetch(`${API_URL}/api/v1/notifications/groupbuy/${groupBuyId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: parseInt(userId),
-          content: '您好！您在此團購的商品已準備完成，請按時來取貨。'
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send notification');
-      }
-
-      alert('通知發送成功！');
-    } catch (error) {
-      console.error('Error sending notification:', error);
-      alert(error instanceof Error ? error.message : '發送通知失敗');
-    } finally {
-      setSendingNotification(null);
-    }
-  };
+  }).sort((a, b) => b.totalQuantity - a.totalQuantity);
 
   return (
     <div>
@@ -214,56 +178,45 @@ export default function AnalyticsPage() {
           <div className="overflow-x-auto">
             {groupbuys.map((g) => (
               <div key={g.id} className="mb-8 border rounded-lg p-4 bg-white">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-bold text-base mb-1">{g.title}</div>
-                    <div className="text-sm text-gray-600 mb-1">{g.description}</div>
-                    <div className="text-sm mb-1">狀態：{g.status}　人數：{g.current_count} / {g.max_count}</div>
-                    <div className="text-sm mb-1">截止日：{new Date(g.deadline).toLocaleDateString()}</div>
-                    <div className="text-sm mb-1">價格：${g.price}</div>
-                    <div className="text-sm mb-2">建立時間：{new Date(g.created_at).toLocaleString()}</div>
-                    <div className="font-semibold mb-2">訂單明細：</div>
-                    {loadingOrders ? (
-                      <div>訂單載入中...</div>
-                    ) : (ordersMap[g.id]?.length === 0 ? (
-                      <div className="text-gray-400 mb-2">目前沒有訂單</div>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full border text-sm mb-2">
-                          <thead>
-                            <tr>
-                              <th className="border px-2 py-1">顧客姓名</th>
-                              <th className="border px-2 py-1">顧客 Email</th>
-                              <th className="border px-2 py-1">商品</th>
-                              <th className="border px-2 py-1">數量</th>
-                              <th className="border px-2 py-1">付款狀態</th>
-                              <th className="border px-2 py-1">下單時間</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {ordersMap[g.id].map((order) => (
-                              <tr key={order.id}>
-                                <td className="border px-2 py-1">{order.user_name}</td>
-                                <td className="border px-2 py-1">{order.user_email}</td>
-                                <td className="border px-2 py-1">{order.product}</td>
-                                <td className="border px-2 py-1">{order.quantity}</td>
-                                <td className="border px-2 py-1">{order.paid ? '已付款' : '未付款'}</td>
-                                <td className="border px-2 py-1">{new Date(order.created_at).toLocaleString()}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ))}
+                <div className="font-bold text-base mb-1">{g.title}</div>
+                <div className="text-sm text-gray-600 mb-1">{g.description}</div>
+                <div className="text-sm mb-1">狀態：{g.status}　人數：{g.current_count} / {g.max_count}</div>
+                <div className="text-sm mb-1">截止日：{new Date(g.deadline).toLocaleDateString()}</div>
+                <div className="text-sm mb-1">價格：${g.price}</div>
+                <div className="text-sm mb-2">建立時間：{new Date(g.created_at).toLocaleString()}</div>
+                <div className="font-semibold mb-2">訂單明細：</div>
+                {loadingOrders ? (
+                  <div>訂單載入中...</div>
+                ) : (ordersMap[g.id]?.length === 0 ? (
+                  <div className="text-gray-400 mb-2">目前沒有訂單</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full border text-sm mb-2">
+                      <thead>
+                        <tr>
+                          <th className="border px-2 py-1">顧客姓名</th>
+                          <th className="border px-2 py-1">顧客 Email</th>
+                          <th className="border px-2 py-1">商品</th>
+                          <th className="border px-2 py-1">數量</th>
+                          <th className="border px-2 py-1">付款狀態</th>
+                          <th className="border px-2 py-1">下單時間</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ordersMap[g.id].map((order) => (
+                          <tr key={order.id}>
+                            <td className="border px-2 py-1">{order.user_name}</td>
+                            <td className="border px-2 py-1">{order.user_email}</td>
+                            <td className="border px-2 py-1">{order.product}</td>
+                            <td className="border px-2 py-1">{order.quantity}</td>
+                            <td className="border px-2 py-1">{order.paid ? '已付款' : '未付款'}</td>
+                            <td className="border px-2 py-1">{new Date(order.created_at).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  <button
-                    onClick={() => sendNotification(g.id)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
-                    disabled={sendingNotification === g.id}
-                  >
-                    {sendingNotification === g.id ? '發送中...' : '發送通知'}
-                  </button>
-                </div>
+                ))}
               </div>
             ))}
           </div>
