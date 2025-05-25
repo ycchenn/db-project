@@ -26,7 +26,7 @@ type Order = {
 };
 
 async function getCustomers(offset: number) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
   const userId = localStorage.getItem('userId');
   
   // 檢查登入狀態
