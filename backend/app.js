@@ -10,6 +10,7 @@ import groupbuyRouter from './routes/v1/groupbuys.js';
 import orderRoutes from './routes/v1/orders.js';
 import cartRoutes from './routes/v1/cart.js';
 
+console.log('🧪 cartRoutes is:', cartRoutes);
 console.log('🧪 orderRoutes is:', orderRoutes);
 
 console.log(process.env.DB_USER);  // 打印特定環境變數

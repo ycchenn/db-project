@@ -69,7 +69,7 @@ export function Product({
         return;
       }
   
-      alert('✅ 已加入購物車');
+      
       setQuantity(1);
     } catch (error) {
       console.error('加入購物車錯誤:', error);

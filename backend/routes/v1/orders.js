@@ -108,6 +108,12 @@ router.post('/', async (req, res) => {
         quantity,
       ]);
     }
+    console.log('🧹 準備刪除 carts 中的資料, user_id:', user_id);
+    await mysqlConnectionPool.query(
+      'DELETE FROM carts WHERE user_id = ?',
+      [user_id]
+    );
+    console.log('✅ 已刪除 carts 中的資料, user_id:', user_id);
 
     return res.status(200).json({ message: '訂單已成功儲存' });
   } catch (error) {
