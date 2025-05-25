@@ -1,27 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShoppingCart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ProductsTable } from './products-table';
 import { getGroupbuys, Groupbuy } from '@/lib/db';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { ProductsTable } from './products-table';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+//const offset = Number(searchParams.get('offset')) || 0;
+const offset = 0;  // 固定不分頁，offset 永遠是 0
+
 
 export default function GroupbuysPage() {
   const [groupbuys, setGroupbuys] = useState<Groupbuy[]>([]);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<{ id: number; title: string; price: number; quantity: number }[]>([]);
 
-  const searchParams = useSearchParams();
-  const offset = Number(searchParams.get('offset')) || 0; // 保留 offset 供未來使用，但不影響當前邏輯
+  //const searchParams = useSearchParams();
+  //const offset = Number(searchParams.get('offset')) || 0; // 保留 offset 供未來使用，但不影響當前邏輯
   const groupbuysPerPage = 5; // 保留，但不使用
   const router = useRouter();
 
