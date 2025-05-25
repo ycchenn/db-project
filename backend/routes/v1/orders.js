@@ -3,6 +3,7 @@ import { Router } from 'express';
 import mysqlConnectionPool from '../../lib/mysql.js';
 import { StatusCode } from '../../lib/constants.js';
 import { verifyJWT } from '../../lib/jwt.js';
+import db from '../../lib/mysql.js';
 
 const router = Router();
 
@@ -129,6 +130,33 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('寫入訂單失敗:', error);
     return res.status(500).json({ error: '伺服器錯誤，請稍後再試' });
+  }
+});
+
+
+router.patch('/:id/pay', async (req, res) => {
+  const { id } = req.params;
+  const { paid } = req.body;
+
+  // 驗證 paid 是否為布林值
+  if (typeof paid !== 'boolean') {
+    return res.status(400).json({ error: '無效的付款狀態' });
+  }
+
+  try {
+    // 確認訂單存在
+    const [orders] = await db.query('SELECT id FROM orders WHERE id = ?', [id]);
+    if (orders.length === 0) {
+      return res.status(404).json({ error: '訂單不存在' });
+    }
+
+    // 更新 paid 欄位
+    await db.query('UPDATE orders SET paid = ? WHERE id = ?', [paid ? 1 : 0, id]);
+
+    res.json({ message: '付款狀態更新成功' });
+  } catch (error) {
+    console.error('更新付款狀態失敗:', error);
+    res.status(500).json({ error: '更新付款狀態失敗', details: error.message });
   }
 });
 

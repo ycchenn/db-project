@@ -3,7 +3,7 @@ dotenv.config();
 
 import bodyParser from "body-parser";
 import express from "express";
-import cors from "./lib/cors.js";
+import cors from 'cors';
 import v1 from "./routes/v1/api.js";
 import authRoutes from './routes/v1/auth.js';
 import groupbuyRouter from './routes/v1/groupbuys.js';
@@ -27,7 +27,11 @@ async function pong(_, res) {
 
 const app = express();
 app.use(express.json());
-app.use("/", cors);
+app.use(cors({
+  origin: ['http://localhost:3001'], // 或 ['http://localhost:3001', 'https://yourdomain.com']
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  credentials: true,
+}));
 app.use(bodyParser.json());
 
 

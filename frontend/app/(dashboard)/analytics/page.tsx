@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 type Analytics = {
   totalGroupBuys: number;
@@ -80,6 +81,35 @@ export default function AnalyticsPage() {
     }
     fetchGroupbuysAndOrders();
   }, []);
+
+  const togglePaidStatus = async (groupbuyId: number, orderId: number, currentPaid: boolean) => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    try {
+      const res = await fetch(`${API_URL}/api/v1/orders/${orderId}/pay`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paid: !currentPaid }),
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || '更改付款狀態失敗');
+      }
+      // 更新前端 ordersMap 狀態
+      setOrdersMap((prev) => ({
+        ...prev,
+        [groupbuyId]: prev[groupbuyId].map((order) =>
+          order.id === orderId ? { ...order, paid: !currentPaid } : order
+        ),
+      }));
+    } catch (error) {
+      console.error('更改付款狀態失敗:', error);
+      if (error instanceof Error) {
+        alert(`更改付款狀態失敗: ${error.message}`);
+      } else {
+        alert('更改付款狀態失敗: 未知錯誤');
+      }
+    }
+  }
 
   if (!analytics) return <div>Loading...</div>;
 
@@ -211,6 +241,15 @@ export default function AnalyticsPage() {
                             <td className="border px-2 py-1">{order.quantity}</td>
                             <td className="border px-2 py-1">{order.paid ? '已付款' : '未付款'}</td>
                             <td className="border px-2 py-1">{new Date(order.created_at).toLocaleString()}</td>
+                            <td className="border px-2 py-1">
+                              <Button
+                                size="sm"
+                                variant={order.paid ? 'outline' : 'default'}
+                                onClick={() => togglePaidStatus(g.id, order.id, order.paid)}
+                              >
+                                {order.paid ? '設為未付款' : '設為已付款'}
+                              </Button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
