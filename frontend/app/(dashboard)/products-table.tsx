@@ -104,6 +104,16 @@ export function ProductsTable({
             <p><strong>人數:</strong> {selectedProduct.current_count} / {selectedProduct.max_count}</p>
             <p><strong>截止日:</strong> {new Date(selectedProduct.deadline).toLocaleDateString('zh-TW')}</p>
             <p><strong>描述:</strong> {selectedProduct.description || '無描述'}</p>
+            {selectedProduct.image_url && (
+              <p>
+                <strong>圖片:</strong>{' '}
+                <img
+                  src={selectedProduct.image_url}
+                  alt={selectedProduct.title}
+                  className="w-20 h-20 object-cover rounded mt-2"
+                />
+              </p>
+            )}
             <div className="mt-4">
               <input
                 type="number"
