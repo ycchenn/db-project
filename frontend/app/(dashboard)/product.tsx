@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TableCell, TableRow } from '@/components/ui/table';
@@ -16,7 +15,7 @@ export type Groupbuy = {
   deadline: string;
   image_url?: string;
   description?: string;
-  seller_name?: string; // 新增賣家名稱欄位
+  seller_name?: string;
 };
 
 interface ProductProps {
@@ -93,11 +92,9 @@ export function Product({
     >
       <TableCell className="hidden sm:table-cell">
         {product.image_url ? (
-          <Image
+          <img
             alt="Product image"
-            className="aspect-square rounded-md object-cover"
-            height={64}
-            width={64}
+            className="w-14 h-14 object-cover rounded"
             src={product.image_url}
           />
         ) : (
