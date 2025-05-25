@@ -39,52 +39,45 @@ export function Product({
   const isClosed = product.status.toLowerCase() === 'closed';
   const canAddToCart = !isClosed && product.current_count < product.max_count;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!canAddToCart || quantity <= 0) return;
-
-    const cart = JSON.parse(localStorage.getItem('cart') || '{"items":[],"groupBuys":[]}');
-    const unitPrice = Number(product.price);
-    if (isNaN(unitPrice)) {
-      alert('商品價格無效，無法加入購物車');
+  
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) {
+      alert('請先登入才能加入購物車');
       return;
     }
-
-    const newItem = {
-      id: product.id.toString(),
-      name: product.title,
-      quantity,
-      unitPrice,
-      totalPrice: unitPrice * quantity,
-      group_buy_id: groupBuyId,
-    };
-
-    const existingItem = cart.items.find(
-      (item: any) => item.id === newItem.id && item.group_buy_id === newItem.group_buy_id
-    );
-    if (existingItem) {
-      existingItem.quantity += quantity;
-      existingItem.totalPrice = existingItem.unitPrice * existingItem.quantity;
-    } else {
-      cart.items.push(newItem);
-    }
-
-    if (groupBuyId) {
-      const existingGroupBuy = cart.groupBuys.find((gb: any) => gb.groupId === groupBuyId);
-      if (!existingGroupBuy) {
-        cart.groupBuys.push({
-          groupId: groupBuyId,
-          owner: groupBuyOwner,
-          targetQuantity: 10,
-          currentQuantity: 5,
-          deadline: product.deadline,
-          status: 'active',
-        });
+  
+    try {
+      const res = await fetch('http://localhost:3000/api/cart', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          groupBuyId: product.id,
+          productName: product.title,
+          quantity,
+          unitPrice: product.price,
+        }),
+      });
+  
+      if (!res.ok) {
+        const errData = await res.json();
+        alert(`加入購物車失敗：${errData.error}`);
+        return;
       }
+  
+      alert('✅ 已加入購物車');
+      setQuantity(1);
+    } catch (error) {
+      console.error('加入購物車錯誤:', error);
+      alert('加入購物車時發生錯誤');
     }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-    setQuantity(1);
   };
+  
 
   return (
     <TableRow

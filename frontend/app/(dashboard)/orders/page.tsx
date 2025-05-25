@@ -38,21 +38,22 @@ export default function OrdersPage() {
 
   // 初始化：從 localStorage 載入購物車
   useEffect(() => {
-    const loadCart = () => {
-      const storedCart = JSON.parse(localStorage.getItem('cart') || '{"items":[],"groupBuys":[]}');
-      // 確保 items 和 groupBuys 是陣列
-      const normalizedCart = {
-        items: Array.isArray(storedCart.items) ? storedCart.items.map((item: any) => ({
-          ...item,
-          unitPrice: Number(item.unitPrice),
-          totalPrice: Number(item.totalPrice),
-        })) : [],
-        groupBuys: Array.isArray(storedCart.groupBuys) ? storedCart.groupBuys : [],
-      };
-      setCart(normalizedCart);
+    const loadCartFromDB = async () => {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user.id) return;
+  
+      const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+      const data = await res.json();
+  
+      setCart({
+        items: data.items || [],
+        groupBuys: data.groupBuy ? [data.groupBuy] : [],
+      });
     };
-    loadCart();
+    loadCartFromDB();
   }, []);
+  
+  
 
   
 
@@ -90,50 +91,94 @@ export default function OrdersPage() {
     return grouped;
   };
 
+
+  const loadCartFromDB = async () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+  
+    const res = await fetch(`/api/cart/${user.id}`);
+    const data = await res.json();
+    setCart({
+      items: data.items || [],
+      groupBuys: data.groupBuy ? [data.groupBuy] : [],
+    });
+  };
+  
+
+
   // 修改數量
-  const updateQuantity = (productId: string, groupBuyId: string | undefined, quantity: number) => {
+  const updateQuantity = async (productId: string, groupBuyId: string | undefined, quantity: number) => {
     if (groupBuyId && isLockedMap[groupBuyId]) {
       alert('團購已過期，無法修改');
       return;
     }
     if (quantity < 1) return;
-    const updatedItems = cart.items.map((item: CartItem) =>
-      item.id === productId && item.groupbuy_id === groupBuyId
-        ? { ...item, quantity, totalPrice: item.unitPrice * quantity }
-        : item
-    );
-    const updatedCart = { ...cart, items: updatedItems };
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    setCart(updatedCart);
+  
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+  
+    try {
+      await fetch('/api/cart', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          productId,
+          quantity,
+        }),
+      });
+      await loadCartFromDB(); // ← 載入最新資料
+    } catch (error) {
+      console.error('更新數量失敗:', error);
+      alert('更新數量失敗');
+    }
   };
+  
 
   // 移除商品
-  const removeItem = (productId: string, groupBuyId: string | undefined) => {
+  const removeItem = async (productId: string, groupBuyId: string | undefined) => {
     if (groupBuyId && isLockedMap[groupBuyId]) {
       alert('團購已過期，無法修改');
       return;
     }
-    const updatedCart = {
-      ...cart,
-      items: cart.items.filter(
-        (item) => !(item.id === productId && item.groupbuy_id === groupBuyId)
-      ),
-    };
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    setCart(updatedCart);
+  
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+  
+    try {
+      await fetch(`/api/cart/${user.id}/${productId}`, {
+        method: 'DELETE',
+      });
+      await loadCartFromDB(); // ← 載入最新資料
+    } catch (error) {
+      console.error('刪除商品失敗:', error);
+      alert('刪除商品失敗');
+    }
   };
+  
 
   // 清空購物車
-  const clearCart = () => {
+  const clearCart = async () => {
     if (cart.groupBuys.some((gb) => isLockedMap[gb.groupId] === true)) {
       alert('包含已過期的團購，無法清空');
       return;
     }
     if (!confirm('確定要清空購物車嗎？')) return;
-    const emptyCart = { items: [], groupBuys: [] };
-    localStorage.setItem('cart', JSON.stringify(emptyCart));
-    setCart(emptyCart);
+  
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+  
+    try {
+      await fetch(`/api/cart/${user.id}`, {
+        method: 'DELETE',
+      });
+      await loadCartFromDB(); // ← 載入最新資料
+    } catch (error) {
+      console.error('清空購物車失敗:', error);
+      alert('清空購物車失敗');
+    }
   };
+  
   
 
   // 結帳
@@ -159,12 +204,15 @@ export default function OrdersPage() {
     }));
   
     try {
-      const res = await fetch('http://localhost:3000/api/orders', {
+      const res = await fetch('/api/cart/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ items: itemsWithGroupId, user_id }),
+        body: JSON.stringify({
+          userId: user.id,
+          groupBuyId: cart.groupBuys.length ? cart.groupBuys[0].groupId : null,
+        }),
       });
   
       if (!res.ok) {
