@@ -1,9 +1,9 @@
 // frontend/app/login/page.tsx
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,12 +11,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const res = await fetch('http://localhost:3000/api/login', {
+      const res = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -31,7 +32,7 @@ export default function LoginPage() {
       // ✅ 成功：儲存 userId 並導向主頁
       localStorage.setItem('userId', data.id);
       localStorage.setItem('user', JSON.stringify({ id: data.id, name: data.name }));
-      router.push('http://localhost:3001/'); // 登入成功導向團購清單
+      router.push('/'); // 登入成功導向首頁
     } catch (err: any) {
       setError(err.message);
     }

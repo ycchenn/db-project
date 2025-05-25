@@ -19,8 +19,10 @@ export default function EditGroupBuyPage() {
     status: 'open',
   });
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
   useEffect(() => {
-    fetch(`http://localhost:3000/api/groupbuys/${id}`)
+    fetch(`${API_URL}/api/groupbuys/${id}`)
       .then(res => res.json())
       .then(data => {
         setForm({
@@ -50,7 +52,7 @@ export default function EditGroupBuyPage() {
     e.preventDefault();
 
     try {
-      const res = await fetch(`http://localhost:3000/api/groupbuys/${id}`, {
+      const res = await fetch(`${API_URL}/api/groupbuys/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +84,7 @@ export default function EditGroupBuyPage() {
 
   const handleDelete = async () => {
     if (!confirm('確定要刪除這個團購嗎？')) return;
-    const res = await fetch(`http://localhost:3000/api/groupbuys/${id}`, {
+    const res = await fetch(`${API_URL}/api/groupbuys/${id}`, {
       method: 'DELETE',
     });
     if (res.ok) {

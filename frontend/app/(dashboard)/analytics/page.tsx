@@ -21,7 +21,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     async function fetchAnalytics() {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
       // 嘗試從 window 取得 userId，若無則 fallback 1
       let userId: number = 1;
       if (typeof window !== 'undefined' && window.__CURRENT_USER_ID__) {
@@ -46,7 +46,7 @@ export default function AnalyticsPage() {
     async function fetchGroupbuysAndOrders() {
       setLoadingGroupbuys(true);
       setLoadingOrders(true);
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
       // 嘗試從 window 取得 userId，若無則 fallback 1
       let userId: number = 1;
       if (typeof window !== 'undefined' && window.__CURRENT_USER_ID__) {
