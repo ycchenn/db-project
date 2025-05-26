@@ -38,18 +38,7 @@ export default function OrdersPage() {
 
   // 初始化：從 localStorage 載入購物車
   useEffect(() => {
-    const loadCartFromDB = async () => {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (!user.id) return;
-      
-      console.log('🔥 user:', user);
-      const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
-      const data = await res.json();
-      setCart({
-        items: data.items || [],
-        groupBuys: data.groupBuy ? [data.groupBuy] : [],
-      });
-    };
+   
     loadCartFromDB();
   }, []);
   

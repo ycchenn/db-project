@@ -32,7 +32,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
 }));
-app.use(bodyParser.json());
+
 
 
 app.get("/", (_, res) => res.send("<h1>GET!</h1>"));
