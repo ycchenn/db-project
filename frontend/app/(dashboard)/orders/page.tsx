@@ -200,7 +200,7 @@ export default function OrdersPage() {
         return;
       }
   
-      setNotification(`結帳成功！總金額：$${total.toFixed(2)}`);
+      setNotification(`下單成功！總金額：$${total.toFixed(2)}`);
   
       const orderId = `order-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
       const orderData = {
@@ -321,7 +321,7 @@ export default function OrdersPage() {
               onClick={checkout}
               disabled={cart.items.length === 0}
             >
-              <ShoppingCart className="mr-2 h-4 w-4" /> 結帳
+              <ShoppingCart className="mr-2 h-4 w-4" /> 下單
             </Button>
           </div>
         </CardContent>
