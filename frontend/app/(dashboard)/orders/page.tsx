@@ -32,8 +32,6 @@ export default function OrdersPage() {
   const router = useRouter();
   const [cart, setCart] = useState<{ items: CartItem[]; groupBuys: GroupBuy[] }>({ items: [], groupBuys: [] });
   const [total, setTotal] = useState(0);
-  const [countdownMap, setCountdownMap] = useState<{ [groupId: string]: string }>({});
-  const [isLockedMap, setIsLockedMap] = useState<{ [groupId: string]: boolean }>({});
   const [notification, setNotification] = useState<string | null>(null);
 
   // 初始化：從 localStorage 載入購物車
@@ -41,11 +39,6 @@ export default function OrdersPage() {
    
     loadCartFromDB();
   }, []);
-  
-  
-  
-
-  
 
   // 計算總金額
   useEffect(() => {
@@ -64,9 +57,6 @@ export default function OrdersPage() {
     }
   }, [notification]);
 
-  
-
-
   const loadCartFromDB = async () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (!user.id) return;
@@ -78,16 +68,10 @@ export default function OrdersPage() {
       groupBuys: data.groupBuys || [],
     });
   };
-  
-
 
   // 修改數量
   const updateQuantity = async (productId: string, groupBuyId: string | undefined, quantity: number) => {
     console.log('🧪 呼叫 updateQuantity:', { productId, groupBuyId, quantity });
-    if (groupBuyId && isLockedMap[groupBuyId]) {
-      alert('團購已過期，無法修改');
-      return;
-    }
     if (quantity < 1) return;
   
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -133,15 +117,9 @@ export default function OrdersPage() {
       alert('更新數量失敗');
     }
   };
-  
 
   // 移除商品
   const removeItem = async (productId: string, groupBuyId: string | undefined) => {
-    if (groupBuyId && isLockedMap[groupBuyId]) {
-      alert('團購已過期，無法修改');
-      return;
-    }
-  
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (!user.id) return;
   
@@ -155,14 +133,9 @@ export default function OrdersPage() {
       alert('刪除商品失敗');
     }
   };
-  
 
   // 清空購物車
   const clearCart = async () => {
-    if (cart.groupBuys.some((gb) => isLockedMap[gb.groupId] === true)) {
-      alert('包含已過期的團購，無法清空');
-      return;
-    }
     if (!confirm('確定要清空購物車嗎？')) return;
   
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -180,21 +153,13 @@ export default function OrdersPage() {
       alert('清空購物車失敗');
     }
   };
-  
-  
 
   // 結帳
   const checkout = async () => {
-    if (cart.groupBuys.some((gb) => isLockedMap[gb.groupId] === true)) {
-      alert('包含已過期的團購，無法結帳');
-      return;
-    }
     if (cart.items.length === 0) {
       alert('購物車為空，無法結帳');
       return;
     }
-    //const user_id = 3;
-
     
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     console.log('🔥 user:', user);
@@ -332,7 +297,7 @@ export default function OrdersPage() {
             <Button
               variant="destructive"
               onClick={clearCart}
-              disabled={cart.items.length === 0 || cart.groupBuys.some((gb) => isLockedMap[gb.groupId] === true)}
+              disabled={cart.items.length === 0}
             >
               清空購物車
             </Button>
@@ -343,7 +308,7 @@ export default function OrdersPage() {
             <Button
               className="w-full mt-2"
               onClick={checkout}
-              disabled={cart.items.length === 0 || cart.groupBuys.some((gb) => isLockedMap[gb.groupId] === true)}
+              disabled={cart.items.length === 0}
             >
               <ShoppingCart className="mr-2 h-4 w-4" /> 結帳
             </Button>

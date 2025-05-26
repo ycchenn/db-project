@@ -9,7 +9,7 @@ type GroupBuy = {
   title: string;
   description: string;
   price: number;
-  status: '進行中' | '已成團' | '未成團' | '已關閉';
+  status: '進行中' | '已成團' | '未成團' | '已關閉' | 'deleted';
   current_count: number;
   max_count: number;
   deadline: string;
@@ -28,13 +28,14 @@ export default function GroupBuyPage() {
     }
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
-    fetch(`${API_URL}/api/groupbuys?user_id=${user_id}`)
+    fetch(`${API_URL}/api/groupbuys?user_id=${user_id}&status=active`)
       .then((res) => {
         if (!res.ok) throw new Error(`API 錯誤 (${res.status})`);
         return res.json();
       })
       .then((json) => {
-        setData(json);
+        const activeGroupbuys = json.filter((item: GroupBuy) => item.status !== 'deleted');
+        setData(activeGroupbuys);
         setLoading(false);
       })
       .catch((err) => {

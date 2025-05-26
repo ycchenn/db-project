@@ -133,7 +133,12 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
+    // 先刪除購物車中的相關項目
+    await db.query('DELETE FROM cart_items WHERE groupbuy_id = ?', [id]);
+    
+    // 刪除團購（相關訂單會因為 CASCADE 自動刪除）
     await db.query('DELETE FROM groupbuys WHERE id = ?', [id]);
+    
     res.json({ message: '刪除成功' });
   } catch (err) {
     console.error('刪除失敗:', err);
